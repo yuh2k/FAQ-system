@@ -1,0 +1,144 @@
+# Automotive Sales FAQ Knowledge Base
+
+## Car Buying Questions
+
+**Q: Should I buy a new car or a used car?**
+A: This depends on your budget and needs. New cars come with warranties and no usage history, but are more expensive and depreciate quickly. Used cars offer better value but require careful inspection. We recommend new cars for first-time buyers or those with sufficient budget, and used cars for experienced buyers with limited budget.
+
+**Q: What documents do I need to buy a car?**
+A: For personal purchases, you need driver's license, ID, proof of residence (for non-local residents), and income proof (for financing). For business purchases, you need business license, organization code certificate, tax registration certificate, and legal representative ID.
+
+**Q: Is it better to finance or pay cash for a car?**
+A: If you have investment opportunities with returns higher than the loan interest rate, financing is recommended. If you don't have better investment options, paying cash can save you interest costs. Also consider cash flow and risk tolerance.
+
+**Q: How can I negotiate the best car price?**
+A: 1) Research market prices beforehand 2) Shop around at multiple dealerships 3) Buy during off-season 4) Watch for manufacturer promotions 5) Negotiate on insurance and accessories 6) Show genuine interest but don't appear desperate.
+
+**Q: What should I check when picking up my new car?**
+A: Check exterior for scratches and dents, test all interior functions, inspect engine bay for leaks, check tire wear and manufacturing date, verify all vehicle documents including certificate and insurance, and take a test drive to check handling and unusual noises.
+
+**Q: What's the best time to buy a car?**
+A: End of model years (September-October), end of calendar year (December), end of quarters, and during manufacturer incentive periods typically offer the best deals. Avoid buying during peak seasons like spring and summer.
+
+**Q: Should I buy or lease a car?**
+A: Buying is better if you drive more than 15,000 miles/year, keep cars long-term, or want to build equity. Leasing works if you prefer newer cars, drive less, want lower monthly payments, and don't mind no ownership.
+
+**Q: How do I get the best financing rate?**
+A: Check your credit score first, get pre-approved from banks/credit unions, compare dealer financing, consider shorter loan terms, and make a larger down payment. Credit scores above 700 typically get the best rates.
+
+**Q: What extended warranty options should I consider?**
+A: Manufacturer extended warranties are usually most reliable. Third-party warranties can be cheaper but read terms carefully. Consider powertrain coverage, bumper-to-bumper coverage, and specific component coverage based on your car's reliability history.
+
+**Q: How much should I budget for a car beyond the purchase price?**
+A: Budget for taxes (typically 6-10%), registration fees, insurance (get quotes first), immediate maintenance items, and emergency repairs. Plan for 10-15% above the car price for total initial costs.
+
+## Car Selling Questions
+
+**Q: When is the best time to sell my car?**
+A: Generally 3-5 years is the sweet spot when the car is still in good condition but depreciation slows. Avoid selling before major repairs, when new models launch, or during winter months. Spring and summer typically see higher demand.
+
+**Q: How do I determine my car's value?**
+A: Check market prices for similar models, consider age and mileage, evaluate condition and maintenance records, review accident history, and assess overall care. Use resources like KBB, Edmunds, and local market comparisons.
+
+**Q: What paperwork do I need to sell my car?**
+A: Vehicle title/registration certificate, bill of sale, maintenance records, owner's manual, spare keys, warranty documents, and loan payoff information if applicable. Clear any liens before selling.
+
+**Q: Should I sell privately or to a dealer?**
+A: Private sales typically yield higher prices but require more effort including marketing, showing, and handling paperwork. Dealer sales are faster and easier but offer lower prices. Consider your time constraints and desired price.
+
+**Q: How can I avoid scams when selling my car?**
+A: 1) Use reputable platforms 2) Meet in person, preferably at banks or safe public locations 3) Accept full payment before transfer 4) Keep transaction records 5) Verify buyer identity and financial capability 6) Sign detailed sales contracts.
+
+**Q: Should I repair my car before selling?**
+A: Fix safety issues and minor cosmetic problems that are inexpensive but improve appearance. Avoid major repairs unless they significantly increase value. Get repair estimates and compare to potential value increase.
+
+**Q: How do I handle trade-ins vs private sales?**
+A: Trade-ins are convenient and may offer tax benefits but typically yield 10-20% less than private sales. Private sales require more effort but maximize return. Consider convenience vs. maximum profit.
+
+**Q: What should I do to prepare my car for sale?**
+A: Deep clean interior and exterior, fix minor issues, gather all documentation, take high-quality photos, write honest descriptions, set competitive pricing, and remove personal items.
+
+## Car Insurance Questions
+
+**Q: What insurance coverage do I need for a new car?**
+A: Mandatory liability insurance, plus comprehensive and collision coverage for new cars. Consider gap insurance, roadside assistance, and rental car coverage. Minimum coverage varies by state.
+
+**Q: How do I choose an insurance company?**
+A: Consider claim processing speed, customer service quality, premium costs, local agent availability, financial stability ratings, and coverage options. Major companies like State Farm, Geico, and Progressive offer different advantages.
+
+**Q: What factors affect my insurance rates?**
+A: Age, driving record, location, credit score, car make/model, coverage levels, deductibles, annual mileage, and safety features. Young drivers and high-performance cars typically cost more to insure.
+
+**Q: Should I bundle auto insurance with other policies?**
+A: Bundling auto with home/renters insurance often provides 10-25% discounts. Compare bundled rates vs. separate policies from different companies to ensure you're getting the best deal.
+
+**Q: What's the difference between collision and comprehensive coverage?**
+A: Collision covers damage from accidents with other vehicles or objects. Comprehensive covers theft, vandalism, weather damage, and animal strikes. Both are typically required for financed vehicles.
+
+## Car Financing Questions
+
+**Q: What are the different car financing options?**
+A: 1) Bank loans: Lower rates but stricter approval 2) Credit union loans: Often best rates for members 3) Dealer financing: Convenient but potentially higher rates 4) Personal loans: Unsecured but higher rates 5) Lease agreements: Lower payments but no ownership.
+
+**Q: How long does car loan approval take?**
+A: Pre-approval can take minutes to hours online. Final approval typically takes 1-3 business days for banks, same-day for some dealers, and 24-48 hours for credit unions. Having all documents ready speeds the process.
+
+**Q: What credit score do I need for car financing?**
+A: 661+ for good rates, 601-660 for average rates, below 600 may require subprime lenders with higher rates. Scores above 720 get the best terms. Check your score before applying and consider improving it if needed.
+
+**Q: Should I get pre-approved for financing?**
+A: Yes, pre-approval gives you negotiating power, shows your budget, speeds up the buying process, and helps you compare dealer offers. Shop rates from multiple lenders within 14-45 days to minimize credit impact.
+
+**Q: What's the ideal loan term length?**
+A: 36-60 months balances payment size with total interest paid. Longer terms (72+ months) mean lower payments but more interest and potential negative equity. Shorter terms save money but increase monthly payments.
+
+## Car Maintenance and Repair
+
+**Q: How often should I service my new car?**
+A: Follow manufacturer's schedule, typically every 5,000-7,500 miles or 6 months for oil changes. First service is usually at 1,000-5,000 miles and is often free. Regular maintenance preserves warranty and vehicle value.
+
+**Q: Where should I get my car serviced?**
+A: Dealership service during warranty period ensures original parts and maintains warranty coverage. After warranty, certified mechanics, chain service centers, or independent shops can be more cost-effective.
+
+**Q: What's included in basic car maintenance?**
+A: Oil and filter changes, tire rotations, brake inspections, fluid checks, battery tests, air filter replacements, and multi-point inspections. Some services may be included in maintenance packages.
+
+**Q: How do I find a reliable mechanic?**
+A: Ask for referrals, check online reviews, verify certifications (ASE), visit the shop, ask about warranties on work, get written estimates, and start with small jobs to test quality and honesty.
+
+**Q: What are signs I need immediate car repair?**
+A: Warning lights, unusual noises, vibrations, fluid leaks, difficulty starting, steering problems, brake issues, or dramatic performance changes. Address safety issues immediately.
+
+## Electric and Hybrid Vehicles
+
+**Q: Are electric cars worth buying now?**
+A: Consider your driving patterns, home charging options, local incentives, and environmental priorities. EVs work well for daily commuting with home charging but may not suit long-distance travel without planning.
+
+**Q: What's the difference between hybrid, plug-in hybrid, and electric vehicles?**
+A: Hybrids use gas engine + electric motor, no plugging in. Plug-in hybrids can run on electricity for short distances then switch to gas. Full EVs run only on electricity and must be charged.
+
+**Q: How much does it cost to charge an electric car?**
+A: Home charging typically costs $0.10-0.30 per kWh, making a full charge $5-15 for most EVs. Public charging costs vary widely. Calculate based on your electricity rates and driving needs.
+
+**Q: What incentives are available for electric vehicles?**
+A: Federal tax credits up to $7,500, state rebates, local utility incentives, HOV lane access, reduced registration fees, and free charging at some locations. Check current availability as programs change.
+
+**Q: How long do electric car batteries last?**
+A: Most EV batteries are warrantied for 8-10 years or 100,000+ miles. Expected lifespan is 15-20 years with gradual capacity reduction. Battery replacement costs are decreasing but still significant.
+
+## Vehicle Safety and Technology
+
+**Q: What safety features should I prioritize?**
+A: Airbags, electronic stability control, anti-lock brakes, backup camera, blind spot monitoring, automatic emergency braking, lane departure warning, and good crash test ratings from IIHS and NHTSA.
+
+**Q: How important are advanced driver assistance systems?**
+A: ADAS features like adaptive cruise control, lane keeping assist, and automatic emergency braking significantly improve safety and convenience. They're becoming standard on most new vehicles.
+
+**Q: Should I buy a car with advanced infotainment systems?**
+A: Consider your tech comfort level and needs. Basic systems with smartphone integration (Apple CarPlay/Android Auto) often provide better functionality than complex proprietary systems.
+
+**Q: What should I know about car recalls?**
+A: Check recall history before buying, register for recall notifications, and address safety recalls promptly (usually free). Non-safety recalls may have time limits. Use NHTSA's recall database.
+
+**Q: How do I research car reliability?**
+A: Check reliability ratings from Consumer Reports, J.D. Power, and manufacturer data. Look at long-term ownership costs, common problems for specific models, and owner forums for real-world experiences.

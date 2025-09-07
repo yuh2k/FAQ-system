@@ -1,0 +1,53 @@
+# Knowledge Base Configuration
+# You can modify this file to change topics, add new Q&A pairs, or switch languages
+
+knowledge_base:
+  # Main knowledge base file path (relative to config directory)
+  primary_kb_file: "knowledge_bases/automotive_en.txt"
+  
+  # Alternative knowledge bases (can switch between them)
+  available_kbs:
+    automotive_en: "knowledge_bases/automotive_en.txt"
+    automotive_cn: "knowledge_bases/automotive_cn.txt"  # You can create this for Chinese
+    electronics: "knowledge_bases/electronics_en.txt"   # Future expansion
+  
+  # Search settings  
+  similarity_threshold: 0.5  # Higher = more strict matching (0.3 was too permissive)
+  max_results: 5
+  
+  # TF-IDF settings
+  tfidf_settings:
+    max_features: 1000
+    stop_words: null  # Can set to 'english' for English stop words
+    lowercase: true
+    
+  # Fallback responses when no match found
+  no_match_responses:
+    - "I couldn't find a relevant answer in the knowledge base. Please provide more details or contact customer service."
+    - "Sorry, I don't have specific information about that. Would you like me to connect you with a specialist?"
+    - "This question isn't covered in my current knowledge base. Let me create a ticket for human support."
+
+# Topic-specific configurations
+topics:
+  automotive:
+    name: "Automotive Sales & Service"
+    description: "Car buying, selling, insurance, financing, and maintenance"
+    urgent_keywords:
+      - "complaint"
+      - "refund"
+      - "malfunction"
+      - "accident" 
+      - "legal"
+      - "dispute"
+      - "contract issue"
+      - "warranty claim"
+    
+  electronics:
+    name: "Electronics Support"
+    description: "Product support, troubleshooting, returns"
+    urgent_keywords:
+      - "broken"
+      - "defective"
+      - "return"
+      - "warranty"
+      - "repair"

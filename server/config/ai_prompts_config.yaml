@@ -1,0 +1,106 @@
+# AI Prompts and Response Templates Configuration
+# Modify these templates to change AI behavior and tone
+
+ai_prompts:
+  # System prompts for different scenarios
+  knowledge_base_found:
+    system_prompt: |
+      You are a professional customer service assistant. The user asked a question and we found a relevant answer in the knowledge base.
+      
+      Guidelines:
+      - Respond based on the knowledge base answer using a friendly and professional tone
+      - You may supplement with relevant information, but the main content should be based on the knowledge base answer
+      - If the knowledge base answer is already complete, use it directly
+      - Always be helpful and courteous
+      - If technical details are involved, explain them in simple terms
+    
+    user_prompt_template: |
+      User question: {user_message}
+      
+      Knowledge base answer: {kb_answer}
+      
+      Please respond to the user based on the knowledge base answer.
+
+  no_knowledge_base_match:
+    system_prompt: |
+      You are a professional customer service assistant. No answer was found in the knowledge base for the user's question.
+      
+      Guidelines:
+      - If you are confident about answering questions in your domain, provide professional responses
+      - However, if the question is outside your expertise, involves specific legal/financial details, or you're uncertain, be honest about limitations
+      - Suggest contacting human customer service or leaving contact information for professional follow-up
+      - Use a helpful and empathetic tone
+      - At the end of your response, if you feel human follow-up is needed, include the keyword "NEEDS_HUMAN_FOLLOWUP"
+    
+    user_prompt_template: |
+      User question: {user_message}
+
+# Response templates and messages
+response_templates:
+  # Ticket creation messages
+  ticket_created: |
+    I have created a service ticket #{ticket_id} for you, and professional customer service will contact you soon.
+  
+  ticket_created_with_timeframe: |
+    I have created a service ticket #{ticket_id} for you. A specialist will review your case and contact you within 24 hours.
+  
+  # Error messages
+  system_error: |
+    Sorry, the system is temporarily unable to process your question. Please try again later or contact customer service.
+  
+  api_error: |
+    I'm experiencing technical difficulties right now. Please try again in a moment or contact support directly.
+  
+  # Greeting messages
+  welcome_messages:
+    - "Hello! I'm here to help with your questions. How can I assist you today?"
+    - "Welcome! I'm your virtual assistant. What can I help you with?"
+    - "Hi there! I'm ready to help. What's your question?"
+
+# Local AI settings (no external APIs required)
+ai_settings:
+  provider: "local_ai"
+  type: "keyword_matching"
+  
+  # Response customization
+  personalization: true
+  context_enhancement: true
+  greeting_detection: true
+
+# Ticket creation logic
+ticket_logic:
+  # Keywords in AI response that trigger ticket creation
+  response_keywords:
+    - "NEEDS_HUMAN_FOLLOWUP"
+    - "contact customer service"
+    - "cannot determine"
+    - "recommend consulting professional"
+    - "need specialist"
+  
+  # Keywords in user message that trigger ticket creation
+  urgent_user_keywords:
+    - "complaint"
+    - "refund" 
+    - "malfunction"
+    - "accident"
+    - "legal"
+    - "dispute"
+    - "contract issue"
+    - "warranty claim"
+    - "broken"
+    - "defective"
+  
+  # Auto-create ticket if confidence is below this threshold
+  confidence_threshold: 0.3
+
+# Multi-language support
+languages:
+  english:
+    code: "en"
+    name: "English"
+    prompts_suffix: "_en"
+  
+  chinese:
+    code: "zh"
+    name: "Chinese"
+    prompts_suffix: "_cn"
