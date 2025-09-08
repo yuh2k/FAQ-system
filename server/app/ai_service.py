@@ -141,14 +141,28 @@ class LocalAIService:
         # Check if this is an unclear intent message
         is_unclear_intent = self._is_unclear_intent(user_message, kb_found)
         
+        # Handle user choice after 3 unclear messages
+        if session_state['guidance_stage'] == 'waiting_for_choice':
+            if self._user_wants_ticket(user_message):
+                response = "I'll create a support ticket for you right now. A customer service representative will review our conversation and contact you to provide personalized assistance."
+                return response, True, False  # Create ticket
+            elif self._user_wants_to_end_chat(user_message):
+                response = "I understand. Feel free to start a new conversation anytime with a more specific question. Thank you for using our service!"
+                return response, False, False  # End chat, no ticket
+            else:
+                # User didn't give clear choice, ask again
+                response = "Please let me know clearly: would you like me to **create a support ticket** or **end this conversation**?"
+                return response, False, True
+        
         # Handle 3-message guidance system
         if is_unclear_intent and session_state['guidance_stage'] != 'escalated':
             unclear_count = session_state['unclear_message_count'] + 1
             
             if unclear_count >= 3:
-                # After 3 unclear messages, escalate to ticket
-                response = self._get_escalation_message()
-                return response, True, True  # Force ticket creation
+                # After 3 unclear messages, give user choice
+                response = self._get_choice_message()
+                session_state['guidance_stage'] = 'waiting_for_choice'  # Set state to wait for choice
+                return response, False, True  # Don't force ticket, let user choose
             else:
                 # Provide guidance
                 response = self._get_guidance_message(user_message, unclear_count)
@@ -182,14 +196,18 @@ I don't have specific information about this in my knowledge base. Please provid
 3. Suggests they contact customer support for detailed help if it seems like a technical issue or complaint
 4. Keep the response concise and friendly
 
-IMPORTANT: If the message indicates any of the following, end your response with "NEEDS_HUMAN_FOLLOWUP":
-- Technical problems, issues, or malfunctions
-- Complaints or dissatisfaction
-- Requests for refunds or warranty claims
-- Legal or contract disputes
-- Questions about broken/defective products
-- Any complex problem that requires human expertise
-- Emergency situations or urgent matters
+CRITICAL: NEVER add "NEEDS_HUMAN_FOLLOWUP" unless the customer EXPLICITLY asks for:
+- "speak to human", "talk to human", "human representative"
+- "customer service", "customer support"
+- "manager", "supervisor"
+- "file complaint", "complaint about YOUR service"
+
+DO NOT add "NEEDS_HUMAN_FOLLOWUP" for:
+- Any technical questions ("how do I...", "what is...", "help with...")
+- Product recommendations ("which car...", "best oil...")  
+- General informational requests
+- Simple greetings ("hello", "hi")
+- Problems that don't explicitly mention YOUR company's fault
 
 If the message seems like a simple greeting (hello, hi, etc.), respond with a friendly greeting and ask how you can help (no ticket needed)."""
             
@@ -335,8 +353,19 @@ They'll be able to have a more detailed conversation and provide personalized gu
         
         return messages.get(unclear_count, messages[3])
 
+    def _get_choice_message(self) -> str:
+        """Get message offering user choice after 3 unclear messages"""
+        return """I'm having difficulty understanding your specific needs. I'd like to help you better. 
+
+You have two options:
+
+**CHOICE_BUTTONS_START**
+CREATE_TICKET|Create Support Ticket|A human customer service representative will review our conversation and contact you personally
+END_CHAT|End Conversation|Close this chat and try again later with a more specific question
+**CHOICE_BUTTONS_END**"""
+
     def _get_escalation_message(self) -> str:
-        """Get message when escalating to human support after 3 unclear messages"""
+        """Get message when escalating to human support after 3 unclear messages"""  
         return """I understand you're looking for help, but I'm having difficulty understanding your specific needs. To ensure you get the best assistance possible, I'm creating a support ticket for you.
 
 A customer service representative will review your conversation and reach out to provide personalized help. They'll be able to ask follow-up questions and guide you to the right solution.
@@ -352,34 +381,27 @@ Thank you for your patience, and we'll have someone assist you shortly."""
         if self._has_human_help_keywords(user_message):
             return True
         
-        # Use AI for semantic intent detection
-        intent_prompt = f"""You are analyzing if a customer message requires HUMAN ASSISTANCE (not just information).
-
+        # Use simplified AI for semantic intent detection
+        intent_prompt = f"""Does this message EXPLICITLY ask for human customer service staff?
 Message: "{user_message}"
 
-Respond ONLY "YES" if the user is EXPLICITLY:
-- Requesting human contact: "speak to human", "talk to person", "customer service"
-- Demanding escalation: "escalate", "manager", "supervisor"  
-- Expressing AI frustration: "bot is not helping", "need real help"
-- Showing urgency requiring human intervention: "emergency", "urgent help NOW"
-- Making complaints/legal issues: "complaint", "legal matter", "lawsuit"
+Only respond YES if message EXPLICITLY contains:
+- "speak to human", "talk to human", "human representative"
+- "customer service", "customer support" 
+- "manager", "supervisor"
+- "transfer me", "escalate"
 
-Respond ONLY "NO" if the user is:
-- Asking product questions (even with "help me understand")
-- Making general inquiries: "tell me about", "what are", "how do"
-- Requesting information that AI can provide
-- Just being conversational or asking for explanations
-- Using "help" in context of learning/information (not human contact)
+Respond NO for:
+- Technical questions ("how do I...", "what is...", "help with...")
+- Product questions ("which car...", "best oil...")
+- General informational requests
+- Simple greetings ("hello", "hi")
 
-IMPORTANT: "Can you help me understand X" = information request = NO
-IMPORTANT: "Tell me about X" = information request = NO  
-IMPORTANT: Only clear human contact requests = YES
-
-Response:"""
+Answer: YES or NO only"""
 
         try:
             ai_intent = await self._call_ollama(intent_prompt)
-            if ai_intent and ai_intent.strip().upper() == "YES":
+            if ai_intent and "YES" in ai_intent.strip().upper():
                 return True
         except Exception:
             # If AI fails, fall back to keyword detection
@@ -510,6 +532,36 @@ Response:"""
 A customer service agent will reach out to you shortly to provide the personal assistance you need. They'll have full context of our conversation and will be able to help resolve your specific situation.
 
 Thank you for reaching out, and we'll have someone contact you soon."""
+
+    def _user_wants_ticket(self, user_message: str) -> bool:
+        """Check if user wants to create a support ticket"""
+        user_lower = user_message.lower().strip()
+        
+        # Check for button action first
+        if user_lower == 'create_ticket':
+            return True
+            
+        ticket_phrases = [
+            'create ticket', 'support ticket', 'ticket', 'yes ticket',
+            'create support', 'yes create', 'option 1', '1',
+            'human help', 'customer service', 'contact support'
+        ]
+        return any(phrase in user_lower for phrase in ticket_phrases)
+    
+    def _user_wants_to_end_chat(self, user_message: str) -> bool:
+        """Check if user wants to end the conversation"""
+        user_lower = user_message.lower().strip()
+        
+        # Check for button action first
+        if user_lower == 'end_chat':
+            return True
+            
+        end_phrases = [
+            'end conversation', 'close chat', 'end chat', 'no thanks',
+            'no ticket', 'option 2', '2', 'end this', 'close this',
+            'goodbye', 'bye', 'quit', 'exit', 'cancel'
+        ]
+        return any(phrase in user_lower for phrase in end_phrases)
 
     def should_create_ticket(self, user_message: str, ai_response: str, kb_found: bool) -> bool:
         """

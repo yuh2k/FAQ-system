@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Input, Button, Card, Space, Alert, Typography, Spin } from 'antd';
-import { SendOutlined, ClearOutlined } from '@ant-design/icons';
+import { SendOutlined, ClearOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { Message } from '../types';
 import { sendMessage } from '../services/api';
 import MessageBubble from './MessageBubble';
@@ -9,14 +9,16 @@ const { Title } = Typography;
 
 interface ChatInterfaceProps {
   userContact: string;
+  sessionId: string | null;
 }
 
-const ChatInterface: React.FC<ChatInterfaceProps> = ({ userContact }) => {
+const ChatInterface: React.FC<ChatInterfaceProps> = ({ userContact, sessionId: propSessionId }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [loading, setLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string>('');
   const [error, setError] = useState<string>('');
+  const [chatDisabled, setChatDisabled] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -27,34 +29,84 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userContact }) => {
     scrollToBottom();
   }, [messages]);
 
+  // Load session messages when propSessionId changes
   useEffect(() => {
-    const welcomeMessage: Message = {
-      id: 'welcome',
-      content: 'Hello! I\'m your AI assistant. I can help answer questions about automotive topics. How can I assist you today?',
-      sender: 'ai',
-      timestamp: new Date(),
-    };
-    setMessages([welcomeMessage]);
-  }, []);
+    if (propSessionId) {
+      setSessionId(propSessionId);
+      loadSessionHistory(propSessionId);
+    } else {
+      // New session - show welcome message and reset states
+      const welcomeMessage: Message = {
+        id: 'welcome',
+        content: 'Hello! I\'m your AI assistant. I can help answer questions about automotive topics. How can I assist you today?',
+        sender: 'ai',
+        timestamp: new Date(),
+      };
+      setMessages([welcomeMessage]);
+      setSessionId('');
+      setChatDisabled(false);
+    }
+  }, [propSessionId]);
 
-  const handleSendMessage = async () => {
-    if (!inputValue.trim()) return;
+  const loadSessionHistory = async (sessionIdToLoad: string) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`http://localhost:8000/chat/history/${sessionIdToLoad}`);
+      if (response.ok) {
+        const history = await response.json();
+        const loadedMessages: Message[] = [];
+        
+        history.forEach((item: any, index: number) => {
+          // Add user message
+          loadedMessages.push({
+            id: `loaded-user-${index}`,
+            content: item.message,
+            sender: 'user',
+            timestamp: new Date(item.created_at),
+          });
+          
+          // Add AI response
+          loadedMessages.push({
+            id: `loaded-ai-${index}`,
+            content: item.response,
+            sender: 'ai',
+            timestamp: new Date(item.created_at),
+          });
+        });
+        
+        setMessages(loadedMessages);
+      } else {
+        throw new Error('Failed to load session history');
+      }
+    } catch (error) {
+      console.error('Error loading session history:', error);
+      setError('Failed to load conversation history');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSendMessage = async (overrideMessage?: string) => {
+    const messageToSend = overrideMessage || inputValue.trim();
+    if (!messageToSend) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: inputValue.trim(),
+      content: messageToSend,
       sender: 'user',
       timestamp: new Date(),
     };
 
     setMessages(prev => [...prev, userMessage]);
-    setInputValue('');
+    if (!overrideMessage) {
+      setInputValue('');
+    }
     setLoading(true);
     setError('');
 
     try {
       const response = await sendMessage({
-        message: inputValue.trim(),
+        message: messageToSend,
         user_contact: userContact,
         session_id: sessionId || undefined,
       });
@@ -76,7 +128,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userContact }) => {
       setMessages(prev => [...prev, aiMessage]);
 
       if (response.ticket_created) {
-        setError(`A support ticket #${response.ticket_id} has been created for further assistance.`);
+        setChatDisabled(true);
+        setError(`A support ticket #${response.ticket_id} has been created for further assistance. The conversation has been ended.`);
       }
 
     } catch (err) {
@@ -114,6 +167,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userContact }) => {
       timestamp: new Date(),
     };
     setMessages([welcomeMessage]);
+  };
+
+  const handleChoiceButtonClick = async (choice: string) => {
+    // Send the choice as a message
+    await handleSendMessage(choice);
   };
 
   return (
@@ -170,7 +228,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userContact }) => {
       >
         <div>
           {messages.map((message) => (
-            <MessageBubble key={message.id} message={message} />
+            <MessageBubble 
+              key={message.id} 
+              message={message} 
+              onChoiceButtonClick={handleChoiceButtonClick}
+            />
           ))}
           {loading && (
             <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginBottom: 16 }}>
@@ -183,33 +245,47 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userContact }) => {
       </Card>
 
       <Card size="small" style={{ flexShrink: 0 }}>
-        <Space.Compact style={{ width: '100%' }}>
-          <Input.TextArea
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleKeyPress}
-            placeholder="Type your message here... (Press Enter to send, Shift+Enter for new line)"
-            autoSize={{ minRows: 1, maxRows: 4 }}
-            disabled={loading}
-            style={{ resize: 'none' }}
-          />
-          <Button 
-            type="primary" 
-            icon={<SendOutlined />}
-            onClick={handleSendMessage}
-            loading={loading}
-            disabled={!inputValue.trim()}
-            style={{ height: 'auto', minHeight: '32px' }}
-          >
-            Send
-          </Button>
-        </Space.Compact>
-        <Typography.Text 
-          type="secondary" 
-          style={{ fontSize: '11px', marginTop: 4, display: 'block' }}
-        >
-          Powered by AI • Knowledge Base Integration • Auto Ticket Creation
-        </Typography.Text>
+        {chatDisabled ? (
+          <div style={{ textAlign: 'center', padding: '16px' }}>
+            <CheckCircleOutlined style={{ fontSize: '24px', color: '#52c41a', marginBottom: '8px' }} />
+            <Typography.Text strong style={{ display: 'block', marginBottom: '4px' }}>
+              Conversation Ended
+            </Typography.Text>
+            <Typography.Text type="secondary" style={{ fontSize: '12px' }}>
+              A support ticket has been created. Our team will contact you soon.
+            </Typography.Text>
+          </div>
+        ) : (
+          <>
+            <Space.Compact style={{ width: '100%' }}>
+              <Input.TextArea
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyPress}
+                placeholder="Type your message here... (Press Enter to send, Shift+Enter for new line)"
+                autoSize={{ minRows: 1, maxRows: 4 }}
+                disabled={loading}
+                style={{ resize: 'none' }}
+              />
+              <Button 
+                type="primary" 
+                icon={<SendOutlined />}
+                onClick={() => handleSendMessage()}
+                loading={loading}
+                disabled={!inputValue.trim()}
+                style={{ height: 'auto', minHeight: '32px' }}
+              >
+                Send
+              </Button>
+            </Space.Compact>
+            <Typography.Text 
+              type="secondary" 
+              style={{ fontSize: '11px', marginTop: 4, display: 'block' }}
+            >
+              Powered by AI • Knowledge Base Integration • Auto Ticket Creation
+            </Typography.Text>
+          </>
+        )}
       </Card>
     </div>
   );

@@ -1,99 +1,84 @@
-# FAQ System 🤖💬
+# FAQ System 🤖
 
-An intelligent customer service system with AI chat, knowledge base, and automatic ticket management.
+Smart AI customer service system with session memory and intelligent ticket management.
 
-## Features
+## Key Features
 
-- **AI Chat Assistant** - Smart responses using local LLM and knowledge base
-- **Automatic Ticket Creation** - Creates support tickets when human help is needed  
-- **Knowledge Base Management** - Browse and search Q&A content
-- **Session History** - Persistent chat conversations
-- **Multi-language Support** - Switch between different knowledge bases
+- **🧠 AI Chat** - Smart responses using local LLM (DeepSeek-R1) + knowledge base
+- **💾 Session Memory** - Resume conversations from any device using email
+- **🎫 Smart Tickets** - AI automatically creates tickets when human help needed
+- **📱 Mobile Friendly** - Responsive design with mobile navigation
+- **🔍 Smart Guidance** - 3-round guidance system with user choice
 
 ## Quick Start
 
-### Requirements
-- Python 3.8+
-- Node.js 16+
-- Ollama (for AI features)
+### Prerequisites
+- Python 3.8+ & Node.js 16+
+- [Ollama](https://ollama.ai) installed
 
-### Installation
+### Setup (5 minutes)
 
-1. **Install Ollama and pull the AI model:**
 ```bash
-# Install Ollama (https://ollama.ai)
+# 1. Start Ollama & download AI model
 ollama serve
 ollama pull deepseek-r1:1.5b
+
+# 2. Backend setup
+cd server && python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate  
+pip install -r requirements.txt && python run.py
+
+# 3. Frontend setup (new terminal)
+cd frontend && npm install && npm start
 ```
 
-2. **Start the backend:**
+**Access:** http://localhost:3000
+
+## How It Works
+
+1. **Enter Email** - System checks for previous conversations
+2. **Choose Session** - Continue old conversation or start fresh  
+3. **Chat** - AI provides smart responses using knowledge base
+4. **Smart Ticketing** - Creates tickets only when explicitly requested or after guidance
+
+### Smart Features
+- **Session Memory** - All conversations saved and retrievable by email
+- **3-Round Guidance System**:
+  - **Round 1-3**: AI guides unclear questions with examples and suggestions
+  - **After Round 3**: User chooses between creating ticket or ending chat
+  - **Only explicit requests** like "speak to human" create immediate tickets
+- **Mobile Responsive** - Works great on phones with bottom navigation  
+- **Knowledge Base** - Browse Q&A database for common questions
+
+## Testing
+
 ```bash
-cd server
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-python run.py
+# Run all tests
+cd tests && python run_all.py
+
+# Run specific test suites
+python tests/test_api.py           # API endpoint tests
+python tests/test_ai_logic.py      # AI business logic tests  
+python tests/test_integration.py   # Integration workflow tests
 ```
 
-3. **Start the frontend (new terminal):**
-```bash
-cd frontend
-npm install
-npm start
-```
+**Test Coverage:**
+- ✅ API endpoints and HTTP handling
+- ✅ AI intent detection and response logic
+- ✅ 3-round guidance system with user choice
+- ✅ Ticket creation workflows
+- ✅ Session management
+- ✅ Complete user interaction flows
 
-### Access
-- **Web App**: http://localhost:3000
-- **API**: http://localhost:8000
+## API
+
+- **Chat**: `POST /chat` - Send message, get AI response
+- **Sessions**: `GET /sessions/{email}` - Get user's conversation history
+- **Tickets**: `GET /tickets` - List support tickets
 - **API Docs**: http://localhost:8000/docs
-
-## How to Use
-
-### Web Interface
-1. Open http://localhost:3000 in your browser
-2. Enter your email to start chatting
-3. Navigate between:
-   - **Chat Support** - Ask questions and get AI responses
-   - **Support Tickets** - View and manage created tickets  
-   - **Knowledge Base** - Browse available Q&A content
-
-### Key Features
-- **Smart Responses** - AI uses knowledge base + local LLM for accurate answers
-- **Robust Ticket Creation** - Guaranteed ticket creation when AI says "NEEDS_HUMAN_FOLLOWUP"
-- **3-Message Guidance** - Guides unclear user questions with 3 attempts before escalating to ticket
-- **Session Memory** - Chat history and guidance state preserved across conversations
-- **Multi-language** - Switch between different knowledge bases via API
-
-### Testing
-```bash
-# Test system functionality
-cd server
-python demo_example.py
-
-# Test new robust ticket creation and guidance features
-python ../test_new_features.py
-
-# Run integration tests  
-python test_universal_faq.py
-```
-
-## Configuration
-
-Knowledge bases and AI prompts can be customized via files in `server/config/`:
-- Switch knowledge bases: `POST /knowledge-base/switch/{kb_name}`
-- Reload config: `POST /config/reload`
-
-## Documentation
-
-- **Technical Details**: See [TECHNICAL.md](TECHNICAL.md)  
-- **API Reference**: http://localhost:8000/docs (when running)
 
 ## Troubleshooting
 
-**Ollama not responding:**
-- Ensure Ollama is running: `ollama serve`
-- Check if model is pulled: `ollama pull deepseek-r1:1.5b`
-
-**Database errors:**
-- Delete `faq_system.db` to reset database
-- Check file permissions on the database file
+**AI not responding:** Check `ollama serve` and `ollama pull deepseek-r1:1.5b`  
+**Database issues:** Delete `server/faq_system.db` to reset  
+**Frontend errors:** Run `npm install` in frontend directory

@@ -28,22 +28,39 @@ const { Option } = Select;
 
 const TicketList: React.FC = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [filteredTickets, setFilteredTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [updateLoading, setUpdateLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
 
   const fetchTickets = async () => {
     setLoading(true);
     try {
       const ticketsData = await getTickets();
       setTickets(ticketsData);
+      applyFilter(ticketsData, statusFilter);
     } catch (error) {
       console.error('Error fetching tickets:', error);
       message.error('Failed to load tickets');
     } finally {
       setLoading(false);
     }
+  };
+
+  const applyFilter = (ticketsData: Ticket[], filter: string) => {
+    if (filter === 'all') {
+      setFilteredTickets(ticketsData);
+    } else {
+      const filtered = ticketsData.filter(ticket => ticket.status === filter);
+      setFilteredTickets(filtered);
+    }
+  };
+
+  const handleStatusFilterChange = (value: string) => {
+    setStatusFilter(value);
+    applyFilter(tickets, value);
   };
 
   useEffect(() => {
@@ -186,21 +203,41 @@ const TicketList: React.FC = () => {
         </div>
         
         <Space size="large">
+          <Button 
+            type={statusFilter === 'all' ? 'primary' : 'default'}
+            onClick={() => handleStatusFilterChange('all')}
+          >
+            All: {tickets.length}
+          </Button>
           <Badge count={stats.open} color="red">
-            <Text>Open: {stats.open}</Text>
+            <Button 
+              type={statusFilter === 'open' ? 'primary' : 'default'}
+              onClick={() => handleStatusFilterChange('open')}
+            >
+              Open: {stats.open}
+            </Button>
           </Badge>
           <Badge count={stats.inProgress} color="orange">
-            <Text>In Progress: {stats.inProgress}</Text>
+            <Button 
+              type={statusFilter === 'in_progress' ? 'primary' : 'default'}
+              onClick={() => handleStatusFilterChange('in_progress')}
+            >
+              In Progress: {stats.inProgress}
+            </Button>
           </Badge>
           <Badge count={stats.closed} color="green">
-            <Text>Closed: {stats.closed}</Text>
+            <Button 
+              type={statusFilter === 'closed' ? 'primary' : 'default'}
+              onClick={() => handleStatusFilterChange('closed')}
+            >
+              Closed: {stats.closed}
+            </Button>
           </Badge>
-          <Text type="secondary">Total: {tickets.length}</Text>
         </Space>
       </Card>
 
       <Table
-        dataSource={tickets}
+        dataSource={filteredTickets}
         columns={columns}
         rowKey="id"
         loading={loading}

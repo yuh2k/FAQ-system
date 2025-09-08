@@ -1,6 +1,6 @@
 import React from 'react';
-import { Avatar, Card, Tag, Typography } from 'antd';
-import { UserOutlined, RobotOutlined, BookOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { Avatar, Card, Tag, Typography, Button, Space } from 'antd';
+import { UserOutlined, RobotOutlined, BookOutlined, ExclamationCircleOutlined, FileTextOutlined, CloseOutlined } from '@ant-design/icons';
 import ReactMarkdown from 'react-markdown';
 import { Message } from '../types';
 
@@ -8,10 +8,41 @@ const { Text, Paragraph } = Typography;
 
 interface MessageBubbleProps {
   message: Message;
+  onChoiceButtonClick?: (choice: string) => void;
 }
 
-const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
+const MessageBubble: React.FC<MessageBubbleProps> = ({ message, onChoiceButtonClick }) => {
   const isUser = message.sender === 'user';
+  
+  // Parse choice buttons from message content
+  const parseChoiceButtons = (content: string) => {
+    const startMarker = '**CHOICE_BUTTONS_START**';
+    const endMarker = '**CHOICE_BUTTONS_END**';
+    
+    if (!content.includes(startMarker) || !content.includes(endMarker)) {
+      return { hasButtons: false, messageContent: content, buttons: [] };
+    }
+    
+    const startIndex = content.indexOf(startMarker);
+    const endIndex = content.indexOf(endMarker);
+    
+    const beforeButtons = content.substring(0, startIndex).trim();
+    const buttonSection = content.substring(startIndex + startMarker.length, endIndex).trim();
+    const afterButtons = content.substring(endIndex + endMarker.length).trim();
+    
+    const buttons = buttonSection.split('\n').filter(line => line.trim()).map(line => {
+      const [action, label, description] = line.split('|');
+      return { action: action.trim(), label: label.trim(), description: description.trim() };
+    });
+    
+    return {
+      hasButtons: true,
+      messageContent: beforeButtons + (afterButtons ? '\n\n' + afterButtons : ''),
+      buttons
+    };
+  };
+  
+  const { hasButtons, messageContent, buttons } = !isUser ? parseChoiceButtons(message.content) : { hasButtons: false, messageContent: message.content, buttons: [] };
   
   return (
     <div style={{ 
@@ -82,8 +113,39 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
                   h3: ({ children }) => <h3 style={{ fontSize: '14px', margin: '0 0 4px 0', fontWeight: 600 }}>{children}</h3>,
                 }}
               >
-                {message.content}
+                {messageContent}
               </ReactMarkdown>
+              
+              {hasButtons && buttons.length > 0 && (
+                <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid #f0f0f0' }}>
+                  <Space direction="vertical" style={{ width: '100%' }}>
+                    {buttons.map((button, index) => (
+                      <Button
+                        key={index}
+                        type={button.action === 'CREATE_TICKET' ? 'primary' : 'default'}
+                        icon={button.action === 'CREATE_TICKET' ? <FileTextOutlined /> : <CloseOutlined />}
+                        onClick={() => onChoiceButtonClick?.(button.action.toLowerCase())}
+                        style={{
+                          width: '100%',
+                          height: 'auto',
+                          padding: '8px 12px',
+                          textAlign: 'left',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'flex-start'
+                        }}
+                      >
+                        <div>
+                          <div style={{ fontWeight: 600 }}>{button.label}</div>
+                          <div style={{ fontSize: '12px', opacity: 0.8, marginTop: '2px' }}>
+                            {button.description}
+                          </div>
+                        </div>
+                      </Button>
+                    ))}
+                  </Space>
+                </div>
+              )}
             </div>
           )}
           
