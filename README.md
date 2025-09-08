@@ -23,57 +23,64 @@ This is a modern customer service system designed specifically for automotive sa
 
 ### Requirements
 - Python 3.8+
+- Node.js 16+ and npm
 - No external AI API required (uses local AI)
 
-### Installation Steps
+### 🚀 One-Click Startup (Recommended)
 
-1. **Clone Project**
 ```bash
+# Clone the project
 git clone <repository-url>
 cd FAQ-system
+
+# Start both backend and frontend
+./start-system.sh
 ```
 
-2. **Install Dependencies**
+This script will:
+- ✅ Check all prerequisites
+- ✅ Install backend dependencies (Python packages)
+- ✅ Install frontend dependencies (npm packages)
+- ✅ Start backend server on http://localhost:8000
+- ✅ Start frontend server on http://localhost:3000
+- ✅ Open the application in your browser
+
+### Manual Installation (Alternative)
+
+If you prefer to set up manually:
+
+#### Backend Setup
 ```bash
 cd server
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
-```
-
-3. **Configure Environment Variables (Optional)**
-```bash
 cp .env.example .env
-# Edit .env file if needed (database URL, etc.)
-```
-
-`.env` file content:
-```
-DATABASE_URL=sqlite+aiosqlite:///./faq_system.db
-```
-
-4. **Start Service**
-```bash
-# Method 1: Using run script (recommended)
 python run.py
-
-# Method 2: Direct uvicorn
-cd app
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-5. **Access Service**
-- API Documentation: http://localhost:8000/docs
-- Service Endpoint: http://localhost:8000
-
-6. **Test Local AI (Optional)**
+#### Frontend Setup
 ```bash
-# Test the local AI system
+cd frontend
+npm install
+cp .env.example .env
+npm start
+```
+
+### Access the Application
+
+- 🎨 **Frontend UI**: http://localhost:3000
+- 🔧 **Backend API**: http://localhost:8000  
+- 📚 **API Documentation**: http://localhost:8000/docs
+
+### Test the System
+
+```bash
+# Test universal FAQ system
 cd server
-python test_local_ai.py
-```
+python test_universal_faq.py
 
-7. **Run Demo (Optional)**
-```bash
-# Run the demo script to test functionality
+# Run demo example
 python demo_example.py
 ```
 
@@ -191,12 +198,20 @@ Current knowledge base contains automotive sales content in the following areas:
 
 ## Technical Architecture
 
-### Backend Technology Stack
+### Technology Stack
+
+#### Backend
 - **FastAPI**: Modern Python web framework
 - **SQLAlchemy**: ORM database operations
 - **SQLite**: Lightweight database
 - **Local AI**: Keyword-based intelligent responses (no external API)
 - **scikit-learn**: Knowledge base similarity matching
+
+#### Frontend
+- **React 18**: Modern UI library with TypeScript
+- **Ant Design 5**: Beautiful and professional UI components
+- **Axios**: HTTP client for API communication
+- **React Router**: Client-side routing
 
 ### Database Models
 - `ChatSession`: Session management
@@ -213,27 +228,40 @@ Current knowledge base contains automotive sales content in the following areas:
 
 ### Project Structure
 ```
-server/
-├── app/
-│   ├── main.py              # FastAPI main application
-│   ├── database.py          # Database configuration
-│   ├── models.py            # Data models
-│   ├── schemas.py           # API schemas
-│   ├── ai_service.py        # AI service
-│   ├── knowledge_base_service.py  # Knowledge base service
-│   └── config_loader.py     # Configuration management
-├── config/                  # External configuration files
-│   ├── knowledge_base_config.yaml    # KB settings
-│   ├── ai_prompts_config.yaml       # AI prompts and templates
-│   └── knowledge_bases/             # Knowledge base files
-│       ├── automotive_en.txt        # English automotive FAQ
-│       ├── automotive_cn.txt        # Chinese automotive FAQ
-│       └── electronics_en.txt       # Electronics FAQ (example)
-├── tests/                   # Test files
-├── requirements.txt         # Dependencies
-├── run.py                   # Startup script
-├── .env.example            # Environment variable template
-└── API_GUIDE.md            # Detailed API documentation
+FAQ-system/
+├── frontend/                # React Frontend
+│   ├── src/
+│   │   ├── components/      # React components
+│   │   │   ├── ChatInterface.tsx     # Main chat UI
+│   │   │   ├── MessageBubble.tsx     # Message components
+│   │   │   ├── TicketList.tsx        # Ticket management
+│   │   │   └── KnowledgeBaseView.tsx # KB browser
+│   │   ├── services/
+│   │   │   └── api.ts       # Backend API client
+│   │   ├── types/
+│   │   │   └── index.ts     # TypeScript interfaces
+│   │   └── App.tsx          # Main application
+│   ├── package.json         # Frontend dependencies
+│   └── README.md           # Frontend documentation
+├── server/                  # Python Backend
+│   ├── app/
+│   │   ├── main.py         # FastAPI main application
+│   │   ├── database.py     # Database configuration
+│   │   ├── models.py       # Data models
+│   │   ├── schemas.py      # API schemas
+│   │   ├── ai_service.py   # AI service
+│   │   ├── knowledge_base_service.py  # Knowledge base service
+│   │   └── config_loader.py # Configuration management
+│   ├── config/             # External configuration files
+│   │   ├── knowledge_base_config.yaml    # KB settings
+│   │   ├── ai_prompts_config.yaml       # AI prompts
+│   │   └── knowledge_bases/ # Knowledge base files
+│   ├── tests/              # Test files
+│   ├── requirements.txt    # Python dependencies
+│   ├── run.py             # Backend startup script
+│   └── API_GUIDE.md       # Detailed API documentation
+├── start-system.sh         # One-click startup script
+└── README.md              # Project documentation
 ```
 
 ### Extension Suggestions
