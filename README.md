@@ -2,14 +2,6 @@
 
 An intelligent customer service system with AI chat, knowledge base, and automatic ticket management.
 
-## Features
-
-- **AI Chat Assistant** - Smart responses using local LLM and knowledge base
-- **Automatic Ticket Creation** - Creates support tickets when human help is needed  
-- **Knowledge Base Management** - Browse and search Q&A content
-- **Session History** - Persistent chat conversations
-- **Multi-language Support** - Switch between different knowledge bases
-
 ## Quick Start
 
 ### Requirements
