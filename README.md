@@ -69,12 +69,6 @@ npm start
 # Test system functionality
 cd server
 python demo_example.py
-
-# Test new robust ticket creation and guidance features
-python ../test_new_features.py
-
-# Run integration tests  
-python test_universal_faq.py
 ```
 
 ## Configuration
