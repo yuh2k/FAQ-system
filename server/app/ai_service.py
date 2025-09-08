@@ -1,6 +1,8 @@
 import re
 import random
-from typing import Tuple
+import aiohttp
+import json
+from typing import Tuple, Dict, Any
 from config_loader import config
 
 class LocalAIService:
@@ -13,14 +15,15 @@ class LocalAIService:
         self.response_templates = config.get_response_templates()
         self.ticket_logic = config.get_ticket_logic()
         
-        # Generic response templates
+        self.ollama_url = "http://localhost:11434"
+        self.model_name = "deepseek-r1:1.5b"
+        
         self.greeting_responses = [
             "Hello! I'm here to help answer your questions. What can I assist you with today?",
             "Welcome! I'm your FAQ assistant. How can I help you?",
             "Hi there! I'm ready to help with your questions. What would you like to know?"
         ]
         
-        # Generic fallback responses for when no KB match
         self.fallback_responses = [
             "I don't have specific information about that in my knowledge base. Could you try rephrasing your question or ask about something else I might be able to help with?",
             "I'm not sure I can help with that particular question. You might want to contact support for more specific assistance.",
@@ -28,7 +31,6 @@ class LocalAIService:
             "I don't have information about that topic. Please try asking a different question or contact customer service for further help."
         ]
         
-        # Smart contextual responses based on question patterns
         self.contextual_patterns = {
             'how_to': {
                 'patterns': [r'how to', r'how do i', r'how can i', r'steps to'],
@@ -74,22 +76,99 @@ class LocalAIService:
             }
         }
 
+    async def _call_ollama(self, prompt: str) -> str:
+        """Call Ollama API to generate response"""
+        try:
+            async with aiohttp.ClientSession() as session:
+                payload = {
+                    "model": self.model_name,
+                    "prompt": prompt,
+                    "stream": False
+                }
+                
+                async with session.post(
+                    f"{self.ollama_url}/api/generate",
+                    json=payload,
+                    timeout=aiohttp.ClientTimeout(total=30)
+                ) as response:
+                    if response.status == 200:
+                        result = await response.json()
+                        raw_response = result.get("response", "").strip()
+                        # Filter out <think> sections from R1 model
+                        return self._clean_r1_response(raw_response)
+                    else:
+                        print(f"Ollama API error: {response.status}")
+                        return None
+        except Exception as e:
+            print(f"Error calling Ollama: {e}")
+            return None
+
+    def _clean_r1_response(self, response: str) -> str:
+        """Remove <think> sections from DeepSeek-R1 model responses"""
+        if not response:
+            return response
+            
+        # Remove <think>...</think> blocks
+        import re
+        cleaned = re.sub(r'<think>.*?</think>', '', response, flags=re.DOTALL)
+        
+        # Clean up extra whitespace
+        cleaned = re.sub(r'\n\s*\n', '\n\n', cleaned)  # Multiple newlines to double
+        cleaned = cleaned.strip()
+        
+        return cleaned
+
     async def generate_response(self, user_message: str, kb_answer: str = None, kb_found: bool = False) -> Tuple[str, bool]:
         """
-        Generate AI response using knowledge base or contextual fallbacks
+        Generate AI response using LLM with knowledge base integration
         Returns: (response_content, needs_ticket)
         """
         
         if kb_found and kb_answer:
-            # Knowledge base found an answer, enhance it with context
-            enhanced_response = self._enhance_kb_answer(user_message, kb_answer)
-            return enhanced_response, False
-        
-        # No knowledge base match, use smart fallback
-        fallback_response = self._generate_smart_fallback(user_message)
-        needs_ticket = self._check_needs_ticket(fallback_response, user_message)
-        
-        return fallback_response, needs_ticket
+            # Knowledge base found an answer, use LLM to enhance it
+            prompt = f"""You are a helpful customer service assistant. A customer asked: "{user_message}"
+
+I found this information in our knowledge base: {kb_answer}
+
+Please provide a helpful, professional response that incorporates this knowledge base information. Keep your response concise and friendly. Do not mention that you're using a knowledge base."""
+            
+            llm_response = await self._call_ollama(prompt)
+            if llm_response:
+                return llm_response, False
+            else:
+                # Fallback to enhanced KB answer if LLM fails
+                enhanced_response = self._enhance_kb_answer(user_message, kb_answer)
+                return enhanced_response, False
+        else:
+            # No knowledge base match, use LLM for general response
+            prompt = f"""You are a helpful customer service assistant. A customer asked: "{user_message}"
+
+I don't have specific information about this in my knowledge base. Please provide a helpful, professional response that:
+1. Acknowledges their question politely
+2. Explains that you don't have specific information about this topic
+3. Suggests they contact customer support for detailed help if it seems like a technical issue or complaint
+4. Keep the response concise and friendly
+
+IMPORTANT: If the message indicates any of the following, end your response with "NEEDS_HUMAN_FOLLOWUP":
+- Technical problems, issues, or malfunctions
+- Complaints or dissatisfaction
+- Requests for refunds or warranty claims
+- Legal or contract disputes
+- Questions about broken/defective products
+- Any complex problem that requires human expertise
+- Emergency situations or urgent matters
+
+If the message seems like a simple greeting (hello, hi, etc.), respond with a friendly greeting and ask how you can help (no ticket needed)."""
+            
+            llm_response = await self._call_ollama(prompt)
+            if llm_response:
+                needs_ticket = self._check_needs_ticket(llm_response, user_message)
+                return llm_response, needs_ticket
+            else:
+                # Fallback to template responses if LLM fails
+                fallback_response = self._generate_smart_fallback(user_message)
+                needs_ticket = self._check_needs_ticket(fallback_response, user_message)
+                return fallback_response, needs_ticket
 
     def _enhance_kb_answer(self, user_message: str, kb_answer: str) -> str:
         """Enhance knowledge base answers with contextual intros"""

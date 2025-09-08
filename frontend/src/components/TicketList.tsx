@@ -175,7 +175,6 @@ const TicketList: React.FC = () => {
 
   return (
     <div>
-      {/* Header with Stats */}
       <Card style={{ marginBottom: 16 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <Title level={4} style={{ margin: 0 }}>
@@ -200,7 +199,6 @@ const TicketList: React.FC = () => {
         </Space>
       </Card>
 
-      {/* Tickets Table */}
       <Table
         dataSource={tickets}
         columns={columns}
@@ -214,7 +212,6 @@ const TicketList: React.FC = () => {
         scroll={{ x: 800 }}
       />
 
-      {/* Ticket Detail Modal */}
       <Modal
         title={`Ticket #${selectedTicket?.id} Details`}
         open={modalVisible}
@@ -232,7 +229,6 @@ const TicketList: React.FC = () => {
         {selectedTicket && (
           <div>
             <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-              {/* Status Update */}
               <div>
                 <Text strong>Status: </Text>
                 <Select
@@ -247,7 +243,6 @@ const TicketList: React.FC = () => {
                 </Select>
               </div>
 
-              {/* Ticket Info */}
               <div>
                 <Text strong>User Contact: </Text>
                 <Text copyable>{selectedTicket.user_contact}</Text>
@@ -263,7 +258,6 @@ const TicketList: React.FC = () => {
                 <Text>{new Date(selectedTicket.created_at).toLocaleString()}</Text>
               </div>
 
-              {/* User Question */}
               <div>
                 <Text strong>User Question:</Text>
                 <Card size="small" style={{ marginTop: 8, backgroundColor: '#f6f6f6' }}>
@@ -271,7 +265,6 @@ const TicketList: React.FC = () => {
                 </Card>
               </div>
 
-              {/* AI Response */}
               <div>
                 <Text strong>AI Attempted Response:</Text>
                 <Card size="small" style={{ marginTop: 8, backgroundColor: '#e6f7ff' }}>

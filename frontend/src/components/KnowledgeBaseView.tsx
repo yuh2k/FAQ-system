@@ -31,6 +31,8 @@ const KnowledgeBaseView: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [switchLoading, setSwitchLoading] = useState(false);
+  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const fetchKnowledgeBase = async () => {
     setLoading(true);
@@ -73,9 +75,13 @@ const KnowledgeBaseView: React.FC = () => {
       qa.answer.toLowerCase().includes(searchTerm.toLowerCase())
   ) || [];
 
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+  };
+
   return (
     <div>
-      {/* Header */}
       <Card style={{ marginBottom: 16 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Title level={4} style={{ margin: 0 }}>
@@ -111,8 +117,8 @@ const KnowledgeBaseView: React.FC = () => {
             placeholder="Search knowledge base..."
             allowClear
             enterButton={<SearchOutlined />}
-            onSearch={setSearchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onSearch={handleSearch}
+            onChange={(e) => handleSearch(e.target.value)}
             style={{ maxWidth: 400 }}
           />
           
@@ -129,7 +135,6 @@ const KnowledgeBaseView: React.FC = () => {
         </Space>
       </Card>
 
-      {/* Q&A List */}
       {filteredQAPairs.length === 0 ? (
         <Card>
           <Empty 
@@ -165,10 +170,25 @@ const KnowledgeBaseView: React.FC = () => {
             </List.Item>
           )}
           pagination={{
-            pageSize: 10,
+            current: currentPage,
+            pageSize: pageSize,
+            total: filteredQAPairs.length,
             showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50', '100'],
+            showQuickJumper: true,
             showTotal: (total, range) => 
               `${range[0]}-${range[1]} of ${total} items`,
+            onChange: (page, size) => {
+              setCurrentPage(page);
+              if (size && size !== pageSize) {
+                setPageSize(size);
+                setCurrentPage(1);
+              }
+            },
+            onShowSizeChange: (current, size) => {
+              setPageSize(size);
+              setCurrentPage(1);
+            }
           }}
           loading={loading}
         />

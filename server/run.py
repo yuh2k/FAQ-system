@@ -3,7 +3,6 @@ import uvicorn
 import sys
 import os
 
-# 添加app目录到Python路径
 sys.path.append(os.path.join(os.path.dirname(__file__), 'app'))
 
 if __name__ == "__main__":
