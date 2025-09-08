@@ -45,22 +45,55 @@ async def chat(request: ChatRequest, db: AsyncSession = Depends(get_db)):
     session_id = request.session_id or str(uuid.uuid4())
     
     # Create or get chat session
+    chat_session = None
     if not request.session_id:
         chat_session = ChatSession(
             session_id=session_id,
             user_contact=request.user_contact
         )
         db.add(chat_session)
+        await db.flush()  # Get the new session
+    else:
+        # Get existing session
+        result = await db.execute(select(ChatSession).where(ChatSession.session_id == session_id))
+        chat_session = result.scalar_one_or_none()
+        
+        if not chat_session:
+            # Session doesn't exist, create it
+            chat_session = ChatSession(
+                session_id=session_id,
+                user_contact=request.user_contact
+            )
+            db.add(chat_session)
+            await db.flush()
     
     # 1. Search in knowledge base first
-    kb_answer, kb_found, similarity = kb_service.search_knowledge_base(request.message)
+    kb_answer, kb_found, _ = kb_service.search_knowledge_base(request.message)
     
-    # 2. Generate AI response
-    ai_response, needs_ticket = await ai_service.generate_response(
-        request.message, kb_answer, kb_found
+    # 2. Prepare session state for AI service
+    session_state = {
+        'unclear_message_count': chat_session.unclear_message_count,
+        'guidance_stage': chat_session.guidance_stage
+    }
+    
+    # 3. Generate AI response
+    ai_response, needs_ticket, is_unclear_intent = await ai_service.generate_response(
+        request.message, kb_answer, kb_found, session_state
     )
     
-    # 3. Save conversation record
+    # 4. Update session state if unclear intent was detected
+    if is_unclear_intent:
+        chat_session.unclear_message_count += 1
+        if chat_session.unclear_message_count >= 3:
+            chat_session.guidance_stage = 'escalated'
+        elif chat_session.unclear_message_count >= 1:
+            chat_session.guidance_stage = 'guiding'
+    else:
+        # Reset unclear count on clear message
+        chat_session.unclear_message_count = 0
+        chat_session.guidance_stage = 'normal'
+    
+    # 5. Save conversation record
     chat_message = ChatMessage(
         session_id=session_id,
         message=request.message,
@@ -69,7 +102,7 @@ async def chat(request: ChatRequest, db: AsyncSession = Depends(get_db)):
     )
     db.add(chat_message)
     
-    # 4. Create ticket if needed
+    # 6. Create ticket if needed
     ticket_created = False
     ticket_id = None
     

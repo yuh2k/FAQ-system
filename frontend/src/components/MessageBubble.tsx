@@ -41,10 +41,12 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
             border: 'none',
             boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
           }}
-          bodyStyle={{ 
-            padding: '8px 12px',
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word'
+          styles={{
+            body: { 
+              padding: '8px 12px',
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word'
+            }
           }}
         >
           {isUser ? (

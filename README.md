@@ -59,8 +59,9 @@ npm start
 
 ### Key Features
 - **Smart Responses** - AI uses knowledge base + local LLM for accurate answers
-- **Auto Ticket Creation** - System creates support tickets when human help is needed
-- **Session Memory** - Chat history is preserved across conversations
+- **Robust Ticket Creation** - Guaranteed ticket creation when AI says "NEEDS_HUMAN_FOLLOWUP"
+- **3-Message Guidance** - Guides unclear user questions with 3 attempts before escalating to ticket
+- **Session Memory** - Chat history and guidance state preserved across conversations
 - **Multi-language** - Switch between different knowledge bases via API
 
 ### Testing
@@ -68,6 +69,9 @@ npm start
 # Test system functionality
 cd server
 python demo_example.py
+
+# Test new robust ticket creation and guidance features
+python ../test_new_features.py
 
 # Run integration tests  
 python test_universal_faq.py

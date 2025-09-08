@@ -10,6 +10,8 @@ class ChatSession(Base):
     user_contact = Column(String(200))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     is_active = Column(Boolean, default=True)
+    unclear_message_count = Column(Integer, default=0)
+    guidance_stage = Column(String(50), default="normal")  # normal, guiding, escalated
 
 class ChatMessage(Base):
     __tablename__ = "chat_messages"

@@ -159,11 +159,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userContact }) => {
           display: 'flex',
           flexDirection: 'column'
         }}
-        bodyStyle={{ 
-          flex: 1, 
-          overflowY: 'auto', 
-          padding: '16px',
-          maxHeight: 'calc(70vh - 200px)'
+        styles={{
+          body: { 
+            flex: 1, 
+            overflowY: 'auto', 
+            padding: '16px',
+            maxHeight: 'calc(70vh - 200px)'
+          }
         }}
       >
         <div>
@@ -185,7 +187,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userContact }) => {
           <Input.TextArea
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyPress}
             placeholder="Type your message here... (Press Enter to send, Shift+Enter for new line)"
             autoSize={{ minRows: 1, maxRows: 4 }}
             disabled={loading}

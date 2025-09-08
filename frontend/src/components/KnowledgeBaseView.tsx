@@ -185,7 +185,7 @@ const KnowledgeBaseView: React.FC = () => {
                 setCurrentPage(1);
               }
             },
-            onShowSizeChange: (current, size) => {
+            onShowSizeChange: (_, size) => {
               setPageSize(size);
               setCurrentPage(1);
             }
