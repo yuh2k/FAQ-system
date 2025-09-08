@@ -1,0 +1,162 @@
+/* Global Styles */
+.App {
+  text-align: left;
+}
+
+/* Override Ant Design defaults for better UX */
+.ant-layout-sider {
+  background: #fff !important;
+}
+
+.ant-menu-light {
+  border-right: none !important;
+}
+
+.ant-menu-item:hover {
+  background-color: #e6f7ff !important;
+}
+
+.ant-menu-item-selected {
+  background-color: #bae7ff !important;
+  border-right: 3px solid #1890ff !important;
+}
+
+/* Chat Interface Styles */
+.ant-card-body {
+  padding: 16px;
+}
+
+/* Message bubbles hover effect */
+.message-bubble:hover {
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+/* Custom scrollbar for message area */
+.ant-card-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ant-card-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.ant-card-body::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.ant-card-body::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .ant-layout-content {
+    margin: 16px !important;
+    padding: 16px !important;
+  }
+  
+  .ant-layout-header {
+    padding: 0 16px !important;
+  }
+}
+
+/* Loading animation */
+.ant-spin-dot {
+  font-size: 20px;
+}
+
+/* Table responsive */
+.ant-table-wrapper {
+  overflow-x: auto;
+}
+
+/* Modal styles */
+.ant-modal-header {
+  border-bottom: 1px solid #f0f0f0;
+  border-radius: 6px 6px 0 0;
+}
+
+.ant-modal-footer {
+  border-top: 1px solid #f0f0f0;
+}
+
+/* Tag animations */
+.ant-tag {
+  transition: all 0.3s ease;
+}
+
+.ant-tag:hover {
+  transform: scale(1.05);
+}
+
+/* Card shadow effect */
+.ant-card {
+  transition: all 0.3s ease;
+}
+
+.ant-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Button loading state */
+.ant-btn-loading {
+  cursor: not-allowed;
+}
+
+/* Input focus effects */
+.ant-input:focus,
+.ant-input-focused {
+  border-color: #40a9ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* Success/Error message styles */
+.ant-message {
+  z-index: 2000;
+}
+
+/* Empty state styles */
+.ant-empty {
+  margin: 40px 0;
+}
+
+.ant-empty-description {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+/* List item hover effect */
+.ant-list-item {
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.ant-list-item:hover {
+  background-color: #fafafa;
+  transform: translateX(4px);
+}
+
+/* Badge styles */
+.ant-badge {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Typography enhancements */
+.ant-typography {
+  line-height: 1.6;
+}
+
+/* Form styles */
+.ant-form-item {
+  margin-bottom: 16px;
+}
+
+/* Select dropdown */
+.ant-select-dropdown {
+  border-radius: 8px;
+  box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 9px 28px 8px rgba(0, 0, 0, 0.05);
+}
