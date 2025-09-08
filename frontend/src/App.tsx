@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout, Menu, Input, Button, Modal, Typography, message } from 'antd';
 import { 
   MessageOutlined, 
@@ -63,22 +62,8 @@ const App: React.FC = () => {
 
   const [selectedKey, setSelectedKey] = useState('1');
 
-  const renderContent = () => {
-    switch (selectedKey) {
-      case '1':
-        return <ChatInterface userContact={userContact} />;
-      case '2':
-        return <TicketList />;
-      case '3':
-        return <KnowledgeBaseView />;
-      default:
-        return <ChatInterface userContact={userContact} />;
-    }
-  };
-
   return (
     <div className="App">
-      {/* Contact Information Modal */}
       <Modal
         title={
           <div style={{ textAlign: 'center' }}>
@@ -107,7 +92,6 @@ const App: React.FC = () => {
       </Modal>
 
       <Layout style={{ minHeight: '100vh' }}>
-        {/* Sidebar */}
         <Sider 
           collapsible 
           collapsed={collapsed} 
@@ -139,7 +123,6 @@ const App: React.FC = () => {
           />
         </Sider>
 
-        {/* Main Content */}
         <Layout>
           <Header style={{ 
             padding: '0 24px', 
@@ -175,7 +158,15 @@ const App: React.FC = () => {
             borderRadius: '8px',
             boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)'
           }}>
-            {renderContent()}
+            <div style={{ display: selectedKey === '1' ? 'block' : 'none' }}>
+              <ChatInterface userContact={userContact} />
+            </div>
+            <div style={{ display: selectedKey === '2' ? 'block' : 'none' }}>
+              <TicketList />
+            </div>
+            <div style={{ display: selectedKey === '3' ? 'block' : 'none' }}>
+              <KnowledgeBaseView />
+            </div>
           </Content>
         </Layout>
       </Layout>

@@ -27,7 +27,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userContact }) => {
     scrollToBottom();
   }, [messages]);
 
-  // Add welcome message
   useEffect(() => {
     const welcomeMessage: Message = {
       id: 'welcome',
@@ -60,7 +59,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userContact }) => {
         session_id: sessionId || undefined,
       });
 
-      // Update session ID if new
       if (!sessionId) {
         setSessionId(response.session_id);
       }
@@ -77,7 +75,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userContact }) => {
 
       setMessages(prev => [...prev, aiMessage]);
 
-      // Show ticket created notification
       if (response.ticket_created) {
         setError(`A support ticket #${response.ticket_id} has been created for further assistance.`);
       }
@@ -110,7 +107,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userContact }) => {
     setSessionId('');
     setError('');
     
-    // Add welcome message back
     const welcomeMessage: Message = {
       id: 'welcome-new',
       content: 'Chat cleared. How can I help you?',
@@ -122,7 +118,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userContact }) => {
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Header */}
       <Card size="small" style={{ marginBottom: 16, flexShrink: 0 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Title level={4} style={{ margin: 0 }}>
@@ -146,7 +141,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userContact }) => {
         </div>
       </Card>
 
-      {/* Error/Info Messages */}
       {error && (
         <Alert
           message={error}
@@ -157,7 +151,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userContact }) => {
         />
       )}
 
-      {/* Messages Area */}
       <Card 
         style={{ 
           flex: 1, 
@@ -166,11 +159,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userContact }) => {
           display: 'flex',
           flexDirection: 'column'
         }}
-        bodyStyle={{ 
-          flex: 1, 
-          overflowY: 'auto', 
-          padding: '16px',
-          maxHeight: 'calc(70vh - 200px)'
+        styles={{
+          body: { 
+            flex: 1, 
+            overflowY: 'auto', 
+            padding: '16px',
+            maxHeight: 'calc(70vh - 200px)'
+          }
         }}
       >
         <div>
@@ -187,13 +182,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userContact }) => {
         </div>
       </Card>
 
-      {/* Input Area */}
       <Card size="small" style={{ flexShrink: 0 }}>
         <Space.Compact style={{ width: '100%' }}>
           <Input.TextArea
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyPress}
             placeholder="Type your message here... (Press Enter to send, Shift+Enter for new line)"
             autoSize={{ minRows: 1, maxRows: 4 }}
             disabled={loading}
