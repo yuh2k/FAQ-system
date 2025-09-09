@@ -1,4 +1,4 @@
-# Customer FAQ System 🤖
+# Customer FAQ System
 
 AI-powered customer service system with intelligent conversation management and smart ticket creation.
 
