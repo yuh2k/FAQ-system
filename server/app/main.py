@@ -192,6 +192,27 @@ async def get_chat_history(session_id: str, db: AsyncSession = Depends(get_db)):
         for msg in messages
     ]
 
+@app.get("/sessions/{email}")
+async def get_user_sessions(email: str, db: AsyncSession = Depends(get_db)):
+    """Get all sessions for a user by email"""
+    result = await db.execute(
+        select(ChatSession)
+        .where(ChatSession.user_contact == email)
+        .order_by(ChatSession.created_at.desc())
+    )
+    sessions = result.scalars().all()
+    
+    return [
+        {
+            "session_id": session.session_id,
+            "created_at": session.created_at,
+            "updated_at": session.created_at,  # ChatSession doesn't have updated_at field
+            "message_count": len(session.messages) if session.messages else 0,
+            "last_message": session.messages[-1].message if session.messages else None
+        }
+        for session in sessions
+    ]
+
 @app.get("/knowledge-base")
 async def get_knowledge_base():
     """Get knowledge base content"""

@@ -3,6 +3,11 @@
   text-align: left;
 }
 
+/* Hide mobile nav by default */
+.mobile-nav {
+  display: none;
+}
+
 /* Override Ant Design defaults for better UX */
 .ant-layout-sider {
   background: #fff !important;
@@ -53,13 +58,129 @@
 
 /* Responsive design */
 @media (max-width: 768px) {
+  /* Layout adjustments */
   .ant-layout-content {
-    margin: 16px !important;
-    padding: 16px !important;
+    margin: 8px !important;
+    padding: 12px !important;
   }
   
   .ant-layout-header {
-    padding: 0 16px !important;
+    padding: 0 12px !important;
+    height: auto !important;
+    min-height: 64px;
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+  
+  /* Modal full screen on mobile */
+  .ant-modal {
+    max-width: calc(100vw - 16px) !important;
+    margin: 8px !important;
+  }
+  
+  .ant-modal-content {
+    border-radius: 12px !important;
+  }
+  
+  /* Chat input on mobile */
+  .ant-input-group {
+    flex-direction: column;
+  }
+  
+  .ant-input-group .ant-input {
+    margin-bottom: 8px;
+  }
+  
+  .ant-btn {
+    width: 100%;
+  }
+  
+  /* Card spacing on mobile */
+  .ant-card {
+    margin-bottom: 12px;
+  }
+  
+  /* Typography adjustments */
+  .ant-typography h3 {
+    font-size: 18px !important;
+  }
+  
+  .ant-typography h4 {
+    font-size: 16px !important;
+  }
+  
+  /* Touch-friendly button sizes */
+  .ant-btn {
+    min-height: 44px;
+    font-size: 16px;
+  }
+  
+  /* List items more touch-friendly */
+  .ant-list-item {
+    padding: 16px 12px !important;
+  }
+}
+
+/* Tablet responsive */
+@media (max-width: 992px) and (min-width: 769px) {
+  .ant-layout-content {
+    margin: 20px !important;
+    padding: 20px !important;
+  }
+  
+  .ant-modal {
+    max-width: 90vw !important;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .ant-layout-content {
+    margin: 4px !important;
+    padding: 8px !important;
+  }
+  
+  .ant-modal {
+    max-width: calc(100vw - 8px) !important;
+    margin: 4px !important;
+  }
+  
+  /* Hide sidebar on very small screens */
+  .ant-layout-sider {
+    display: none !important;
+  }
+  
+  /* Show mobile menu on small screens */
+  .mobile-nav {
+    display: flex !important;
+    justify-content: space-around;
+    background: #fff;
+    border-top: 1px solid #f0f0f0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 8px 0;
+  }
+  
+  .mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 12px;
+    color: #666;
+    cursor: pointer;
+    padding: 8px;
+  }
+  
+  .mobile-nav-item.active {
+    color: #1890ff;
+  }
+  
+  /* Add bottom padding to content to account for mobile nav */
+  .ant-layout-content {
+    padding-bottom: 70px !important;
   }
 }
 

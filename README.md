@@ -1,85 +1,61 @@
-# FAQ System 🤖💬
+# FAQ System 🤖
 
-An intelligent customer service system with AI chat, knowledge base, and automatic ticket management.
+Smart AI customer service system with session memory and intelligent ticket management.
+
 
 ## Quick Start
 
-### Requirements
-- Python 3.8+
-- Node.js 16+
-- Ollama (for AI features)
+### Prerequisites
+- Python 3.8+ & Node.js 16+
+- [Ollama](https://ollama.ai) installed
 
-### Installation
+### Setup (5 minutes)
 
-1. **Install Ollama and pull the AI model:**
 ```bash
-# Install Ollama (https://ollama.ai)
+# 1. Start Ollama & download AI model
 ollama serve
 ollama pull deepseek-r1:1.5b
+
+
+# 3. Frontend setup (new terminal)
+cd frontend && npm install && npm start
 ```
 
-2. **Start the backend:**
-```bash
-cd server
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-python run.py
+**Access:** http://localhost:3000
+
+## How It Works
+
+1. **Enter Email** - System checks for previous conversations
+2. **Choose Session** - Continue old conversation or start fresh  
+3. **Chat** - AI provides smart responses using knowledge base
+4. **Smart Ticketing** - Creates tickets only when explicitly requested or after guidance
+
+### Smart Features
+- **Session Memory** - All conversations saved and retrievable by email
+- **3-Round Guidance System**:
+  - **Round 1-3**: AI guides unclear questions with examples and suggestions
+  - **After Round 3**: User chooses between creating ticket or ending chat
+  - **Only explicit requests** like "speak to human" create immediate tickets
+- **Mobile Responsive** - Works great on phones with bottom navigation  
+- **Knowledge Base** - Browse Q&A database for common questions
+
+
 ```
 
-3. **Start the frontend (new terminal):**
-```bash
-cd frontend
-npm install
-npm start
-```
+**Test Coverage:**
+- ✅ API endpoints and HTTP handling
+- ✅ AI intent detection and response logic
+- ✅ 3-round guidance system with user choice
+- ✅ Ticket creation workflows
+- ✅ Session management
+- ✅ Complete user interaction flows
 
-### Access
-- **Web App**: http://localhost:3000
-- **API**: http://localhost:8000
+## API
+
+- **Chat**: `POST /chat` - Send message, get AI response
+- **Sessions**: `GET /sessions/{email}` - Get user's conversation history
+- **Tickets**: `GET /tickets` - List support tickets
 - **API Docs**: http://localhost:8000/docs
 
-## How to Use
 
-### Web Interface
-1. Open http://localhost:3000 in your browser
-2. Enter your email to start chatting
-3. Navigate between:
-   - **Chat Support** - Ask questions and get AI responses
-   - **Support Tickets** - View and manage created tickets  
-   - **Knowledge Base** - Browse available Q&A content
 
-### Key Features
-- **Smart Responses** - AI uses knowledge base + local LLM for accurate answers
-- **Robust Ticket Creation** - Guaranteed ticket creation when AI says "NEEDS_HUMAN_FOLLOWUP"
-- **3-Message Guidance** - Guides unclear user questions with 3 attempts before escalating to ticket
-- **Session Memory** - Chat history and guidance state preserved across conversations
-- **Multi-language** - Switch between different knowledge bases via API
-
-### Testing
-```bash
-# Test system functionality
-cd server
-python demo_example.py
-```
-
-## Configuration
-
-Knowledge bases and AI prompts can be customized via files in `server/config/`:
-- Switch knowledge bases: `POST /knowledge-base/switch/{kb_name}`
-- Reload config: `POST /config/reload`
-
-## Documentation
-
-- **Technical Details**: See [TECHNICAL.md](TECHNICAL.md)  
-- **API Reference**: http://localhost:8000/docs (when running)
-
-## Troubleshooting
-
-**Ollama not responding:**
-- Ensure Ollama is running: `ollama serve`
-- Check if model is pulled: `ollama pull deepseek-r1:1.5b`
-
-**Database errors:**
-- Delete `faq_system.db` to reset database
-- Check file permissions on the database file
