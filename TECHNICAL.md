@@ -1,282 +1,566 @@
-# FAQ System - Technical Documentation
+# Technical Documentation
+
+Comprehensive technical guide for the Customer FAQ System.
 
 ## Architecture Overview
 
-### System Design Diagram
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        User Interface                           │
-├─────────────────────────────────────────────────────────────────┤
-│  React Frontend (Port 3000)                                    │
-│  ├── Chat Interface    ├── Ticket List    ├── Knowledge Base   │
-│  └── Message Bubbles   └── Ticket Modal   └── Search/Browse    │
-└─────────────────────────┬───────────────────────────────────────┘
-                          │ HTTP/REST API
-┌─────────────────────────▼───────────────────────────────────────┐
-│                   FastAPI Backend (Port 8000)                  │
-├─────────────────────────────────────────────────────────────────┤
-│  API Endpoints:                                                 │
-│  ├── /chat              ├── /tickets           ├── /knowledge-base │
-│  ├── /chat/history      ├── /tickets/{id}      └── /config      │
-│  └── Main Routes        └── Ticket Management                   │
-└─────────────────────────┬───────────────────────────────────────┘
-                          │
-        ┌─────────────────┼─────────────────┐
-        │                 │                 │
-        ▼                 ▼                 ▼
-┌─────────────┐  ┌─────────────────┐  ┌──────────────┐
-│  Database   │  │   AI Service    │  │ Config Files │
-│  (SQLite)   │  │  (Local LLM)    │  │   (YAML)     │
-├─────────────┤  ├─────────────────┤  ├──────────────┤
-│• Sessions   │  │• Ollama API     │  │• KB Settings │
-│• Messages   │  │• DeepSeek Model │  │• AI Prompts  │
-│• Tickets    │  │• Response Gen   │  │• Templates   │
-└─────────────┘  └─────────┬───────┘  └──────────────┘
-                           │
-                           ▼
-                 ┌─────────────────┐
-                 │ Knowledge Base  │
-                 │   (TF-IDF)      │
-                 ├─────────────────┤
-                 │• Automotive Q&A │
-                 │• Similarity     │
-                 │• Vector Match   │
-                 └─────────────────┘
-```
-
-### Data Flow
-```
-User Input → Frontend → API Endpoint → AI Service → Knowledge Base Search
-    ↓                                      ↓              ↓
-Response ← Frontend ← JSON Response ← LLM Processing ← Similarity Match
-    ↓
-[If Needs Ticket] → Database → Ticket Creation → Return Ticket ID
-```
-
 ### System Components
-- **Frontend**: React + TypeScript + Ant Design (Port 3000)  
-- **Backend**: FastAPI + Python (Port 8000)
-- **Database**: SQLite for persistence
-- **AI Service**: Ollama local LLM integration  
-- **Knowledge Base**: TF-IDF vectorized Q&A matching
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   React.js      │    │   FastAPI       │    │   SQLite        │
+│   Frontend      │◄──►│   Backend       │◄──►│   Database      │
+│   (Port 3000)   │    │   (Port 8000)   │    │                 │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+                                │
+                                ▼
+                       ┌─────────────────┐
+                       │   Ollama        │
+                       │   AI Service    │
+                       │   (Port 11434)  │
+                       └─────────────────┘
+```
 
-### Key Technologies
-**Backend:**
-- FastAPI (Python web framework)
-- SQLAlchemy (ORM)
-- SQLite (database)
-- Ollama (local LLM)
-- scikit-learn (text similarity)
+### Technology Stack
 
 **Frontend:**
-- React 18 + TypeScript
-- Ant Design (UI components)
-- Axios (HTTP client)
+- React.js 18+ with TypeScript
+- Ant Design UI components
+- Axios for HTTP requests
+- React hooks for state management
 
-## Quick Start
+**Backend:**
+- FastAPI (Python) with async/await
+- SQLAlchemy ORM with async support
+- Pydantic for data validation
+- SQLite database
 
-### Prerequisites
-- Python 3.8+
-- Node.js 16+
-- Ollama (for AI features)
+**AI Service:**
+- Ollama local inference server
+- DeepSeek-R1 1.5B parameter model
+- Custom prompt engineering
+- Vector similarity search
 
-### Installation
+## Detailed Setup Instructions
+
+### Prerequisites Installation
+
+#### Python 3.8+
 ```bash
-# 1. Start Ollama
+# macOS (using Homebrew)
+brew install python
+
+# Ubuntu/Debian
+sudo apt update && sudo apt install python3 python3-pip python3-venv
+
+# Windows
+# Download from https://www.python.org/downloads/
+```
+
+#### Node.js 16+
+```bash
+# macOS (using Homebrew)
+brew install node
+
+# Ubuntu/Debian
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Windows
+# Download from https://nodejs.org/
+```
+
+#### Ollama
+```bash
+# macOS
+brew install ollama
+
+# Linux
+curl -fsSL https://ollama.ai/install.sh | sh
+
+# Windows
+# Download from https://ollama.ai/download/windows
+```
+
+### Manual Setup Process
+
+#### 1. Ollama Setup
+```bash
+# Start Ollama service
 ollama serve
 
-# 2. Pull required model
+# Download the AI model (in another terminal)
 ollama pull deepseek-r1:1.5b
 
-# 3. Backend setup
-cd server
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-python run.py
+# Verify installation
+ollama list
+```
 
-# 4. Frontend setup (new terminal)
-cd frontend
+#### 2. Backend Setup
+```bash
+# Navigate to project
+cd FAQ-system/server
+
+# Create virtual environment
+python3 -m venv venv
+
+# Activate virtual environment
+# macOS/Linux:
+source venv/bin/activate
+# Windows:
+# venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Initialize database
+python app/database.py
+
+# Start server
+python run.py
+```
+
+#### 3. Frontend Setup
+```bash
+# Navigate to frontend (new terminal)
+cd FAQ-system/frontend
+
+# Install dependencies
 npm install
+
+# Start development server
 npm start
 ```
 
-### Access Points
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8000
-- API Docs: http://localhost:8000/docs
+### Configuration
 
-## System Design
+#### Backend Configuration
+
+**Database Configuration** (`server/app/database.py`):
+```python
+DATABASE_URL = "sqlite+aiosqlite:///./faq_system.db"
+```
+
+**CORS Configuration** (`server/app/main.py`):
+```python
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://localhost:8080"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+```
+
+**AI Service Configuration** (`server/config/config.yaml`):
+```yaml
+ai_service:
+  provider: "local_ai"
+  model: "deepseek-r1:1.5b"
+  base_url: "http://localhost:11434"
+  max_tokens: 500
+  temperature: 0.7
+```
+
+#### Knowledge Base Configuration
+
+**Adding Knowledge Bases** (`server/config/knowledge_bases/`):
+```
+# Format: Question|Answer
+What is your return policy?|Our return policy allows returns within 30 days of purchase.
+How can I track my order?|You can track your order using the tracking number sent to your email.
+```
+
+**AI Prompts Configuration** (`server/config/ai_prompts.yaml`):
+```yaml
+system_prompt: |
+  You are a helpful customer service assistant. Always be polite and professional.
+  
+guidance_prompts:
+  round_1: "I'd like to help you! Could you please be more specific about what you're looking for?"
+  round_2: "I'm still not quite sure how to help. Could you provide more details?"
+  round_3: "I'm having difficulty understanding your specific needs. You have two options:"
+  
+choice_buttons: |
+  **CHOICE_BUTTONS_START**
+  CREATE_TICKET|Create a support ticket - I'll connect you with a human agent
+  END_CHAT|End this conversation - I'll close our chat session
+  **CHOICE_BUTTONS_END**
+```
+
+#### Frontend Configuration
+
+**API Configuration** (`frontend/src/services/api.ts`):
+```typescript
+const API_BASE_URL = 'http://localhost:8000';
+```
+
+**Theme Configuration** (`frontend/src/App.tsx`):
+```typescript
+const theme = {
+  token: {
+    colorPrimary: '#1890ff',
+    borderRadius: 6,
+  },
+};
+```
+
+## Development Guide
+
+### Project Structure
+
+```
+FAQ-system/
+├── setup.sh                     # One-click setup script
+├── start.sh                     # Start all services
+├── stop.sh                      # Stop all services
+├── README.md                    # Main documentation
+├── TECHNICAL.md                 # This file
+│
+├── frontend/                    # React.js application
+│   ├── public/
+│   ├── src/
+│   │   ├── components/         # React components
+│   │   │   ├── ChatInterface.tsx
+│   │   │   ├── SessionHistory.tsx
+│   │   │   └── TicketList.tsx
+│   │   ├── services/           # API services
+│   │   │   └── api.ts
+│   │   ├── types/              # TypeScript types
+│   │   │   └── index.ts
+│   │   ├── App.tsx             # Main app component
+│   │   └── index.tsx           # Entry point
+│   ├── package.json
+│   └── tsconfig.json
+│
+├── server/                      # FastAPI application
+│   ├── app/
+│   │   ├── main.py             # FastAPI app and routes
+│   │   ├── ai_service.py       # AI logic and conversation handling
+│   │   ├── models.py           # SQLAlchemy database models
+│   │   ├── schemas.py          # Pydantic request/response schemas
+│   │   ├── database.py         # Database configuration
+│   │   ├── knowledge_base_service.py # Knowledge base operations
+│   │   └── config_loader.py    # Configuration loading
+│   ├── config/
+│   │   ├── config.yaml         # System configuration
+│   │   ├── ai_prompts.yaml     # AI prompting configuration
+│   │   └── knowledge_bases/    # Q&A knowledge base files
+│   │       ├── automotive_en.txt
+│   │       └── general_en.txt
+│   ├── requirements.txt        # Python dependencies
+│   ├── run.py                  # Server startup script
+│   └── migrate_db.py           # Database migration script
+│
+└── tests/                      # Test suite
+    ├── test_api.py             # API endpoint tests
+    ├── test_ai_logic.py        # AI service tests
+    ├── test_integration.py     # Integration tests
+    ├── test_end_chat.py        # End chat functionality tests
+    ├── test_button_choices.py  # Button interaction tests
+    ├── run_all.py              # Test runner
+    └── README.md               # Test documentation
+```
 
 ### Database Schema
-```sql
--- Chat sessions
-CREATE TABLE chat_sessions (
-    id VARCHAR PRIMARY KEY,
-    user_contact VARCHAR NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
 
--- Chat messages
+#### Tables
+
+**chat_sessions**
+```sql
+CREATE TABLE chat_sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id VARCHAR NOT NULL UNIQUE,
+    user_contact VARCHAR NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT 1,
+    unclear_message_count INTEGER DEFAULT 0,
+    guidance_stage VARCHAR DEFAULT 'normal'
+);
+```
+
+**chat_messages**
+```sql
 CREATE TABLE chat_messages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     session_id VARCHAR NOT NULL,
     message TEXT NOT NULL,
     response TEXT NOT NULL,
-    is_from_kb BOOLEAN DEFAULT FALSE,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (session_id) REFERENCES chat_sessions(id)
+    is_from_kb BOOLEAN DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (session_id) REFERENCES chat_sessions (session_id)
 );
+```
 
--- Support tickets
+**tickets**
+```sql
 CREATE TABLE tickets (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     session_id VARCHAR NOT NULL,
-    user_contact VARCHAR NOT NULL,
     user_question TEXT NOT NULL,
-    ai_attempted_response TEXT NOT NULL,
+    user_contact VARCHAR NOT NULL,
     status VARCHAR DEFAULT 'open',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (session_id) REFERENCES chat_sessions(id)
+    ai_attempted_response TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    FOREIGN KEY (session_id) REFERENCES chat_sessions (session_id)
 );
 ```
 
-### API Endpoints
+### API Documentation
 
-#### Core Chat API
-```http
-POST /chat
+#### Authentication
+No authentication required for this demo system.
+
+#### Request/Response Format
+All API requests and responses use JSON format.
+
+#### Error Handling
+```json
 {
-    "message": "user question",
-    "user_contact": "user@email.com",
-    "session_id": "optional-uuid"
-}
-→ {
-    "response": "ai response",
-    "session_id": "uuid",
-    "is_from_kb": boolean,
-    "ticket_created": boolean,
-    "ticket_id": number|null
+  "detail": "Error message",
+  "status_code": 400
 }
 ```
 
-#### Knowledge Base API
-```http
-GET /knowledge-base
-→ {
-    "qa_pairs": [{"question": "...", "answer": "..."}],
-    "total": number
-}
+#### Rate Limiting
+No rate limiting implemented in current version.
 
-GET /knowledge-base/available
-→ {
-    "available_kbs": ["automotive_en", "automotive_cn"]
-}
+### Adding New Features
 
-POST /knowledge-base/switch/{kb_name}
-→ {
-    "message": "switched to {kb_name}",
-    "success": true
-}
-```
+#### Adding New API Endpoint
+1. Define Pydantic schema in `server/app/schemas.py`
+2. Add route handler in `server/app/main.py`
+3. Add database operations if needed
+4. Create frontend service function in `frontend/src/services/api.ts`
+5. Add tests in appropriate test file
 
-#### Ticket Management API
-```http
-GET /tickets
-→ [{"id": 1, "status": "open", "user_question": "...", ...}]
+#### Adding New React Component
+1. Create component in `frontend/src/components/`
+2. Add TypeScript types in `frontend/src/types/index.ts`
+3. Import and use in parent component
+4. Add styling as needed
 
-GET /tickets/{ticket_id}
-→ {"id": 1, "status": "open", "user_question": "...", ...}
+#### Modifying AI Behavior
+1. Update prompts in `server/config/ai_prompts.yaml`
+2. Modify logic in `server/app/ai_service.py`
+3. Test with `tests/test_ai_logic.py`
 
-PUT /tickets/{ticket_id}/status?status=in_progress
-→ {"message": "Ticket status updated", "success": true}
-```
+#### Adding New Knowledge Base
+1. Create new file in `server/config/knowledge_bases/`
+2. Use format: `Question|Answer` per line
+3. Switch via API: `POST /config/switch-kb/{kb_name}`
 
-#### Chat History API
-```http
-GET /chat/history/{session_id}
-→ [{"message": "...", "response": "...", "created_at": "...", ...}]
-```
+### Testing
 
-## AI Service Flow
+#### Test Categories
 
-### Message Processing Pipeline
-1. **Input**: User message + context
-2. **Knowledge Base Search**: TF-IDF similarity matching
-3. **AI Processing**: 
-   - If KB match found: Enhance with LLM
-   - If no match: Generate contextual fallback
-4. **Response Generation**: Format and return
-5. **Ticket Creation**: Auto-create if human followup needed
+**Unit Tests:**
+- Individual function testing
+- Mock external dependencies
+- Fast execution
 
-### Knowledge Base Matching
-- Uses TF-IDF vectorization
-- Cosine similarity threshold: 0.5
-- Fallback to contextual patterns if no match
+**Integration Tests:**
+- Component interaction testing
+- Database operations
+- API endpoint testing
 
-### Ticket Creation Logic
-Tickets are created when:
-- Response contains "NEEDS_HUMAN_FOLLOWUP"
-- User message contains complaint/problem keywords
-- Complex issues requiring human expertise
+**End-to-End Tests:**
+- Complete user workflows
+- Browser automation (if needed)
+- Full system testing
 
-## Configuration
+#### Running Tests
 
-### Environment Variables
+**All Tests:**
 ```bash
-# Server config
-OLLAMA_URL=http://localhost:11434
-MODEL_NAME=deepseek-r1:1.5b
-DATABASE_URL=sqlite:///./faq_system.db
+python tests/run_all.py
+```
 
-# Frontend config
+**Specific Test Categories:**
+```bash
+# API tests
+python tests/test_api.py
+
+# AI logic tests
+python tests/test_ai_logic.py
+
+# Integration tests
+python tests/test_integration.py
+
+# Feature-specific tests
+python tests/test_end_chat.py
+python tests/test_button_choices.py
+```
+
+**With Coverage:**
+```bash
+pip install pytest-cov
+pytest tests/ --cov=server/app --cov-report=html
+```
+
+### Deployment
+
+#### Production Considerations
+
+**Backend:**
+- Use production ASGI server (Gunicorn + Uvicorn)
+- Configure proper database (PostgreSQL)
+- Set up environment variables
+- Configure logging
+- Set up monitoring
+
+**Frontend:**
+- Build production bundle: `npm run build`
+- Serve with nginx or similar
+- Configure proper base URL
+- Set up CDN for static assets
+
+**AI Service:**
+- Consider GPU acceleration for better performance
+- Set up model caching
+- Configure resource limits
+
+#### Environment Variables
+```bash
+# Backend
+DATABASE_URL=postgresql://user:pass@localhost/dbname
+OLLAMA_BASE_URL=http://localhost:11434
+AI_MODEL=deepseek-r1:1.5b
+
+# Frontend
 REACT_APP_API_URL=http://localhost:8000
 ```
 
-### Knowledge Base Configuration
-Located in `server/config/`:
-- `knowledge_base_config.yaml` - KB settings
-- `ai_prompts_config.yaml` - AI prompts
-- `knowledge_bases/` - KB content files
+## Troubleshooting
 
-## Development
+### Common Issues
 
-### File Structure
-```
-FAQ-system/
-├── frontend/src/
-│   ├── components/           # React components
-│   ├── services/api.ts      # API client
-│   ├── types/index.ts       # TypeScript types
-│   └── App.tsx              # Main app
-├── server/app/
-│   ├── main.py              # FastAPI app
-│   ├── database.py          # DB config
-│   ├── models.py            # SQLAlchemy models
-│   ├── schemas.py           # Pydantic schemas
-│   ├── ai_service.py        # AI logic
-│   └── knowledge_base_service.py # KB logic
-└── server/config/           # Configuration files
-```
-
-### Testing
+#### Ollama Issues
 ```bash
-# Backend tests
-cd server && pytest tests/ -v
+# Check if Ollama is running
+pgrep -f "ollama serve"
 
-# Frontend tests
-cd frontend && npm test
+# Check available models
+ollama list
 
-# System integration test
-cd server && python test_universal_faq.py
+# Check Ollama logs
+journalctl -u ollama
+
+# Restart Ollama
+pkill ollama && ollama serve
 ```
 
-### Adding New Knowledge Bases
-1. Create content file in `server/config/knowledge_bases/`
-2. Add configuration in `knowledge_base_config.yaml`
-3. Restart server or call `/config/reload`
+#### Backend Issues
+```bash
+# Check Python version
+python3 --version
 
-### Extending AI Capabilities
-- Modify `ai_service.py` for new AI logic
-- Update `ai_prompts_config.yaml` for new prompts
-- Add new contextual patterns in `LocalAIService`
+# Check if virtual environment is activated
+which python
+
+# Check installed packages
+pip list
+
+# Check database file permissions
+ls -la faq_system.db
+
+# View backend logs
+tail -f server/logs/app.log
+```
+
+#### Frontend Issues
+```bash
+# Check Node.js version
+node --version
+
+# Clear npm cache
+npm cache clean --force
+
+# Reinstall dependencies
+rm -rf node_modules package-lock.json
+npm install
+
+# Check for port conflicts
+lsof -i :3000
+```
+
+#### Database Issues
+```bash
+# Recreate database
+rm faq_system.db
+python server/app/database.py
+
+# Check database schema
+sqlite3 faq_system.db ".schema"
+
+# View table contents
+sqlite3 faq_system.db "SELECT * FROM chat_sessions LIMIT 5;"
+```
+
+### Performance Optimization
+
+#### Backend Optimization
+- Use database connection pooling
+- Implement caching for knowledge base queries
+- Optimize AI model loading
+- Add request compression
+
+#### Frontend Optimization
+- Implement lazy loading for components
+- Use React.memo for expensive components
+- Optimize bundle size
+- Add service worker for caching
+
+#### AI Service Optimization
+- Use GPU acceleration if available
+- Implement model quantization
+- Add response caching
+- Optimize prompt length
+
+### Security Considerations
+
+#### Input Validation
+- Sanitize all user inputs
+- Validate email formats
+- Limit message length
+- Prevent SQL injection
+
+#### API Security
+- Add rate limiting
+- Implement authentication
+- Use HTTPS in production
+- Validate request origins
+
+#### Data Privacy
+- Encrypt sensitive data
+- Implement data retention policies
+- Add user data deletion capabilities
+- Follow GDPR compliance
+
+### Monitoring and Logging
+
+#### Application Monitoring
+- Add health check endpoints
+- Monitor response times
+- Track error rates
+- Monitor resource usage
+
+#### Logging Configuration
+```python
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('app.log'),
+        logging.StreamHandler()
+    ]
+)
+```
+
+#### Metrics Collection
+- Request/response metrics
+- AI model performance
+- Database query performance
+- User interaction patterns
