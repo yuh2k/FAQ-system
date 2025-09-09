@@ -130,6 +130,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userContact, sessionId: p
       if (response.ticket_created) {
         setChatDisabled(true);
         setError(`A support ticket #${response.ticket_id} has been created for further assistance. The conversation has been ended.`);
+      } else if (response.chat_ended) {
+        setChatDisabled(true);
+        setError('The conversation has been ended. You can start a new conversation anytime.');
       }
 
     } catch (err) {

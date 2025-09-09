@@ -145,9 +145,15 @@ class LocalAIService:
         if session_state['guidance_stage'] == 'waiting_for_choice':
             if self._user_wants_ticket(user_message):
                 response = "I'll create a support ticket for you right now. A customer service representative will review our conversation and contact you to provide personalized assistance."
+                # Reset session state after ticket creation
+                session_state['guidance_stage'] = 'normal'
+                session_state['unclear_message_count'] = 0
                 return response, True, False  # Create ticket
             elif self._user_wants_to_end_chat(user_message):
-                response = "I understand. Feel free to start a new conversation anytime with a more specific question. Thank you for using our service!"
+                response = "I understand. Thank you for using our service! Feel free to start a new conversation anytime with a more specific question."
+                # Set special status to indicate chat ended
+                session_state['guidance_stage'] = 'ended'
+                session_state['unclear_message_count'] = 0
                 return response, False, False  # End chat, no ticket
             else:
                 # User didn't give clear choice, ask again
@@ -157,6 +163,7 @@ class LocalAIService:
         # Handle 3-message guidance system
         if is_unclear_intent and session_state['guidance_stage'] != 'escalated':
             unclear_count = session_state['unclear_message_count'] + 1
+            session_state['unclear_message_count'] = unclear_count  # Update the session state
             
             if unclear_count >= 3:
                 # After 3 unclear messages, give user choice
@@ -166,6 +173,7 @@ class LocalAIService:
             else:
                 # Provide guidance
                 response = self._get_guidance_message(user_message, unclear_count)
+                session_state['guidance_stage'] = 'guiding'  # Set guidance stage
                 return response, False, True
         
         if kb_found and kb_answer:
