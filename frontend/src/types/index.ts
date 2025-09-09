@@ -5,6 +5,7 @@ export interface ChatResponse {
   is_from_kb: boolean;
   ticket_created: boolean;
   ticket_id?: number;
+  chat_ended: boolean;
 }
 
 export interface ChatRequest {

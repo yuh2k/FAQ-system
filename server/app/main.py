@@ -70,10 +70,12 @@ async def chat(request: ChatRequest, db: AsyncSession = Depends(get_db)):
     # 1. Search in knowledge base first
     kb_answer, kb_found, _ = kb_service.search_knowledge_base(request.message)
     
-    # 2. Prepare session state for AI service
+    # 2. Prepare session state for AI service (refresh from DB to avoid lazy loading)
+    await db.refresh(chat_session, ['unclear_message_count', 'guidance_stage'])
+    
     session_state = {
-        'unclear_message_count': chat_session.unclear_message_count,
-        'guidance_stage': chat_session.guidance_stage
+        'unclear_message_count': chat_session.unclear_message_count or 0,
+        'guidance_stage': chat_session.guidance_stage or 'normal'
     }
     
     # 3. Generate AI response
@@ -81,17 +83,10 @@ async def chat(request: ChatRequest, db: AsyncSession = Depends(get_db)):
         request.message, kb_answer, kb_found, session_state
     )
     
-    # 4. Update session state if unclear intent was detected
-    if is_unclear_intent:
-        chat_session.unclear_message_count += 1
-        if chat_session.unclear_message_count >= 3:
-            chat_session.guidance_stage = 'escalated'
-        elif chat_session.unclear_message_count >= 1:
-            chat_session.guidance_stage = 'guiding'
-    else:
-        # Reset unclear count on clear message
-        chat_session.unclear_message_count = 0
-        chat_session.guidance_stage = 'normal'
+    # 4. Update session state based on AI service modifications
+    # The AI service updates session_state internally, so use those values
+    chat_session.unclear_message_count = session_state['unclear_message_count']
+    chat_session.guidance_stage = session_state['guidance_stage']
     
     # 5. Save conversation record
     chat_message = ChatMessage(
@@ -122,6 +117,9 @@ async def chat(request: ChatRequest, db: AsyncSession = Depends(get_db)):
         ticket_message = ai_service.get_ticket_created_message(ticket_id)
         ai_response += f"\n\n{ticket_message}"
     
+    # Store the chat ended status before commit to avoid lazy loading issues
+    chat_ended = (chat_session.guidance_stage == 'ended')
+    
     await db.commit()
     
     return ChatResponse(
@@ -129,7 +127,8 @@ async def chat(request: ChatRequest, db: AsyncSession = Depends(get_db)):
         session_id=session_id,
         is_from_kb=kb_found,
         ticket_created=ticket_created,
-        ticket_id=ticket_id
+        ticket_id=ticket_id,
+        chat_ended=chat_ended
     )
 
 @app.get("/tickets")

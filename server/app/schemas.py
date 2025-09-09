@@ -13,6 +13,7 @@ class ChatResponse(BaseModel):
     is_from_kb: bool
     ticket_created: bool = False
     ticket_id: Optional[int] = None
+    chat_ended: bool = False
 
 class TicketCreate(BaseModel):
     session_id: str
