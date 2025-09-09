@@ -26,7 +26,7 @@ AI-powered customer service system with intelligent conversation management and 
 ./setup.sh
 
 # Start the system
-./start.sh
+./start-system.sh
 ```
 
 **Access:** http://localhost:3000
