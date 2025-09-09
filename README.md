@@ -2,13 +2,6 @@
 
 Smart AI customer service system with session memory and intelligent ticket management.
 
-## Key Features
-
-- **🧠 AI Chat** - Smart responses using local LLM (DeepSeek-R1) + knowledge base
-- **💾 Session Memory** - Resume conversations from any device using email
-- **🎫 Smart Tickets** - AI automatically creates tickets when human help needed
-- **📱 Mobile Friendly** - Responsive design with mobile navigation
-- **🔍 Smart Guidance** - 3-round guidance system with user choice
 
 ## Quick Start
 
@@ -23,10 +16,6 @@ Smart AI customer service system with session memory and intelligent ticket mana
 ollama serve
 ollama pull deepseek-r1:1.5b
 
-# 2. Backend setup
-cd server && python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate  
-pip install -r requirements.txt && python run.py
 
 # 3. Frontend setup (new terminal)
 cd frontend && npm install && npm start
@@ -50,16 +39,7 @@ cd frontend && npm install && npm start
 - **Mobile Responsive** - Works great on phones with bottom navigation  
 - **Knowledge Base** - Browse Q&A database for common questions
 
-## Testing
 
-```bash
-# Run all tests
-cd tests && python run_all.py
-
-# Run specific test suites
-python tests/test_api.py           # API endpoint tests
-python tests/test_ai_logic.py      # AI business logic tests  
-python tests/test_integration.py   # Integration workflow tests
 ```
 
 **Test Coverage:**
@@ -77,8 +57,5 @@ python tests/test_integration.py   # Integration workflow tests
 - **Tickets**: `GET /tickets` - List support tickets
 - **API Docs**: http://localhost:8000/docs
 
-## Troubleshooting
 
-**AI not responding:** Check `ollama serve` and `ollama pull deepseek-r1:1.5b`  
-**Database issues:** Delete `server/faq_system.db` to reset  
-**Frontend errors:** Run `npm install` in frontend directory
+
