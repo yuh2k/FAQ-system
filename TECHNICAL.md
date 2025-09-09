@@ -165,9 +165,9 @@ ai_service:
 
 **Adding Knowledge Bases** (`server/config/knowledge_bases/`):
 ```
-# Format: Question|Answer
-What is your return policy?|Our return policy allows returns within 30 days of purchase.
-How can I track my order?|You can track your order using the tracking number sent to your email.
+# Format:
+Q: What is your return policy?
+A: return policy allows returns within 30 days of purchase.
 ```
 
 **AI Prompts Configuration** (`server/config/ai_prompts.yaml`):
