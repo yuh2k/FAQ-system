@@ -2,6 +2,8 @@
 
 AI-powered customer service system with intelligent conversation management and smart ticket creation.
 
+[Demo Video](https://drive.google.com/file/d/1tcsHSpg03Jon2r29Gen__UDoJVO4yhw0/view?usp=sharing)
+
 ## Features
 
 - **🤖 Intelligent AI Chat** - Local DeepSeek model with conversation memory
