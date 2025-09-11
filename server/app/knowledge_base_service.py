@@ -36,9 +36,15 @@ class KnowledgeBaseService:
         with open(kb_file, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # Parse Q&A pairs
-        qa_pattern = r'\*\*Q:\s*(.*?)\*\*\s*\n\s*A:\s*(.*?)(?=\n\n|\n\*\*Q:|$)'
-        matches = re.findall(qa_pattern, content, re.DOTALL)
+        # Parse Q&A pairs - supports both markdown and plain text formats
+        # Try plain text format first (Q: ... A: ...)
+        qa_pattern_plain = r'Q:\s*(.*?)\n\s*A:\s*(.*?)(?=\n\n|\nQ:|$)'
+        matches = re.findall(qa_pattern_plain, content, re.DOTALL)
+        
+        # If no matches with plain text, try markdown format (**Q: ... **A: ...)
+        if not matches:
+            qa_pattern_markdown = r'\*\*Q:\s*(.*?)\*\*\s*\n\s*A:\s*(.*?)(?=\n\n|\n\*\*Q:|$)'
+            matches = re.findall(qa_pattern_markdown, content, re.DOTALL)
         
         self.qa_pairs = []
         for question, answer in matches:

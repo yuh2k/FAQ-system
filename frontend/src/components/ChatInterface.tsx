@@ -19,6 +19,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userContact, sessionId: p
   const [sessionId, setSessionId] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [chatDisabled, setChatDisabled] = useState(false);
+  const [sessionStatus, setSessionStatus] = useState<{
+    isActive: boolean;
+    hasTicket: boolean;
+    guidanceStage: string;
+  }>({ isActive: true, hasTicket: false, guidanceStage: 'normal' });
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -53,10 +58,23 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userContact, sessionId: p
       setLoading(true);
       const response = await fetch(`http://localhost:8000/chat/history/${sessionIdToLoad}`);
       if (response.ok) {
-        const history = await response.json();
+        const data = await response.json();
         const loadedMessages: Message[] = [];
         
-        history.forEach((item: any, index: number) => {
+        // Set session status
+        if (data.session_info) {
+          setSessionStatus({
+            isActive: data.session_info.is_active,
+            hasTicket: data.session_info.has_ticket,
+            guidanceStage: data.session_info.guidance_stage
+          });
+          
+          // Disable chat if session is not active or has ticket
+          setChatDisabled(!data.session_info.is_active || data.session_info.has_ticket);
+        }
+        
+        // Load messages
+        data.messages.forEach((item: any, index: number) => {
           // Add user message
           loadedMessages.push({
             id: `loaded-user-${index}`,
@@ -185,6 +203,16 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userContact, sessionId: p
             💬 AI Customer Support
           </Title>
           <Space>
+            {sessionStatus.hasTicket && (
+              <Typography.Text type="warning" style={{ fontSize: '12px' }}>
+                🎫 Has Ticket
+              </Typography.Text>
+            )}
+            {sessionStatus.guidanceStage === 'ended' && (
+              <Typography.Text type="secondary" style={{ fontSize: '12px' }}>
+                ✅ Session Ended
+              </Typography.Text>
+            )}
             {sessionId && (
               <Typography.Text type="secondary" style={{ fontSize: '12px' }}>
                 Session: {sessionId.slice(0, 8)}...
@@ -195,6 +223,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userContact, sessionId: p
               onClick={handleClearChat}
               type="text"
               size="small"
+              disabled={chatDisabled}
             >
               Clear
             </Button>
@@ -252,11 +281,18 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userContact, sessionId: p
           <div style={{ textAlign: 'center', padding: '16px' }}>
             <CheckCircleOutlined style={{ fontSize: '24px', color: '#52c41a', marginBottom: '8px' }} />
             <Typography.Text strong style={{ display: 'block', marginBottom: '4px' }}>
-              Conversation Ended
+              {sessionStatus.hasTicket ? 'Support Ticket Created' : 'Conversation Ended'}
             </Typography.Text>
             <Typography.Text type="secondary" style={{ fontSize: '12px' }}>
-              A support ticket has been created. Our team will contact you soon.
+              {sessionStatus.hasTicket 
+                ? 'A support ticket has been created. Our team will contact you soon.' 
+                : 'This conversation has ended. You can start a new conversation anytime.'}
             </Typography.Text>
+            {propSessionId && (
+              <Typography.Text type="secondary" style={{ fontSize: '11px', display: 'block', marginTop: '8px' }}>
+                📖 Read-only mode - Historical session
+              </Typography.Text>
+            )}
           </div>
         ) : (
           <>

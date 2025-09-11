@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
 
@@ -12,6 +13,9 @@ class ChatSession(Base):
     is_active = Column(Boolean, default=True)
     unclear_message_count = Column(Integer, default=0)
     guidance_stage = Column(String(50), default="normal")  # normal, guiding, escalated
+    
+    # Relationship to chat messages
+    messages = relationship("ChatMessage", foreign_keys="ChatMessage.session_id", primaryjoin="ChatSession.session_id == ChatMessage.session_id")
 
 class ChatMessage(Base):
     __tablename__ = "chat_messages"

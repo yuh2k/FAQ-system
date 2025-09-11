@@ -1,13 +1,13 @@
 # Technical Documentation
 
-Comprehensive technical guide for the Customer FAQ System.
+Core technical guide for the Customer FAQ System.
 
 ## Architecture Overview
 
 ### System Components
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   React.js      │    │   FastAPI       │    │   SQLite        │
+│   React 18      │    │   FastAPI       │    │   SQLite        │
 │   Frontend      │◄──►│   Backend       │◄──►│   Database      │
 │   (Port 3000)   │    │   (Port 8000)   │    │                 │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
@@ -23,22 +23,28 @@ Comprehensive technical guide for the Customer FAQ System.
 ### Technology Stack
 
 **Frontend:**
-- React.js 18+ with TypeScript
-- Ant Design UI components
-- Axios for HTTP requests
-- React hooks for state management
+- React 18 + TypeScript + Ant Design 5.x
+- Session management with email-based history
+- Real-time chat interface with status indicators
+- Read-only mode for ended sessions
 
 **Backend:**
-- FastAPI (Python) with async/await
-- SQLAlchemy ORM with async support
-- Pydantic for data validation
-- SQLite database
+- FastAPI with async SQLAlchemy + SQLite
+- Session persistence and ticket management
+- TF-IDF knowledge base search (70+ Q&A pairs)
+- 3-round guidance system with smart escalation
 
 **AI Service:**
-- Ollama local inference server
-- DeepSeek-R1 1.5B parameter model
-- Custom prompt engineering
-- Vector similarity search
+- Ollama + DeepSeek-R1:1.5b model
+- Context-aware conversation memory
+- Automatic service startup and health checking
+- Fallback responses when AI unavailable
+
+**Knowledge Base:**
+- Plain text format (Q: / A: structure)
+- Automotive domain with 8 major categories
+- TF-IDF vectorization + cosine similarity matching
+- Hot-reloadable configuration
 
 ## Detailed Setup Instructions
 
@@ -163,46 +169,20 @@ ai_service:
 
 #### Knowledge Base Configuration
 
-**Adding Knowledge Bases** (`server/config/knowledge_bases/`):
+**Plain Text Format** (`server/config/knowledge_bases/automotive_en.txt`):
 ```
-# Format:
-Q: What is your return policy?
-A: return policy allows returns within 30 days of purchase.
+Q: Should I buy a new car or a used car?
+A: This depends on your budget and needs. New cars come with warranties and no usage history, but are more expensive and depreciate quickly.
+
+Q: What documents do I need to buy a car?
+A: For personal purchases, you need driver's license, ID, proof of residence, and income proof for financing.
 ```
 
-**AI Prompts Configuration** (`server/config/ai_prompts.yaml`):
-```yaml
-system_prompt: |
-  You are a helpful customer service assistant. Always be polite and professional.
-  
-guidance_prompts:
-  round_1: "I'd like to help you! Could you please be more specific about what you're looking for?"
-  round_2: "I'm still not quite sure how to help. Could you provide more details?"
-  round_3: "I'm having difficulty understanding your specific needs. You have two options:"
-  
-choice_buttons: |
-  **CHOICE_BUTTONS_START**
-  CREATE_TICKET|Create a support ticket - I'll connect you with a human agent
-  END_CHAT|End this conversation - I'll close our chat session
-  **CHOICE_BUTTONS_END**
-```
-
-#### Frontend Configuration
-
-**API Configuration** (`frontend/src/services/api.ts`):
-```typescript
-const API_BASE_URL = 'http://localhost:8000';
-```
-
-**Theme Configuration** (`frontend/src/App.tsx`):
-```typescript
-const theme = {
-  token: {
-    colorPrimary: '#1890ff',
-    borderRadius: 6,
-  },
-};
-```
+**Knowledge Base Features:**
+- 70+ automotive Q&A pairs covering 8 major categories
+- TF-IDF similarity matching with configurable threshold
+- Support for multiple knowledge bases with hot switching
+- Plain text format for easy maintenance
 
 ## Development Guide
 
@@ -210,357 +190,160 @@ const theme = {
 
 ```
 FAQ-system/
-├── setup.sh                     # One-click setup script
-├── start.sh                     # Start all services
-├── stop.sh                      # Stop all services
-├── README.md                    # Main documentation
-├── TECHNICAL.md                 # This file
+├── start.sh                    # Start all services (auto-starts Ollama)
+├── setup.sh                    # One-click setup script
+├── README.md                   # User documentation
+├── TECHNICAL.md                # This technical guide
+├── faq_system.db              # SQLite database
 │
-├── frontend/                    # React.js application
-│   ├── public/
+├── frontend/                   # React 18 + TypeScript application
 │   ├── src/
 │   │   ├── components/         # React components
-│   │   │   ├── ChatInterface.tsx
-│   │   │   ├── SessionHistory.tsx
-│   │   │   └── TicketList.tsx
-│   │   ├── services/           # API services
-│   │   │   └── api.ts
-│   │   ├── types/              # TypeScript types
-│   │   │   └── index.ts
-│   │   ├── App.tsx             # Main app component
-│   │   └── index.tsx           # Entry point
-│   ├── package.json
-│   └── tsconfig.json
+│   │   │   ├── ChatInterface.tsx      # Main chat interface
+│   │   │   ├── MessageBubble.tsx      # Individual message display
+│   │   │   ├── SessionHistory.tsx     # Session list and history
+│   │   │   └── UserEmailForm.tsx      # Email input form
+│   │   ├── services/api.ts     # API communication layer
+│   │   ├── types/index.ts      # TypeScript type definitions
+│   │   └── App.tsx             # Main application component
+│   └── package.json            # Dependencies and scripts
 │
-├── server/                      # FastAPI application
-│   ├── app/
-│   │   ├── main.py             # FastAPI app and routes
-│   │   ├── ai_service.py       # AI logic and conversation handling
-│   │   ├── models.py           # SQLAlchemy database models
-│   │   ├── schemas.py          # Pydantic request/response schemas
+├── server/                     # FastAPI backend application
+│   ├── app/                    # Application code
+│   │   ├── main.py             # API routes and FastAPI app
+│   │   ├── ai_service.py       # AI conversation logic
+│   │   ├── knowledge_base_service.py  # Q&A search and matching
+│   │   ├── models.py           # Database models (sessions, messages, tickets)
+│   │   ├── schemas.py          # Request/response schemas
 │   │   ├── database.py         # Database configuration
-│   │   ├── knowledge_base_service.py # Knowledge base operations
-│   │   └── config_loader.py    # Configuration loading
-│   ├── config/
-│   │   ├── config.yaml         # System configuration
-│   │   ├── ai_prompts.yaml     # AI prompting configuration
-│   │   └── knowledge_bases/    # Q&A knowledge base files
-│   │       ├── automotive_en.txt
-│   │       └── general_en.txt
+│   │   └── config_loader.py    # Configuration management
+│   ├── config/                 # Configuration files
+│   │   ├── ai_prompts_config.yaml     # AI prompts and responses
+│   │   ├── knowledge_base_config.yaml # Knowledge base settings
+│   │   └── knowledge_bases/           # Knowledge base files
+│   │       └── automotive_en.txt      # 70+ automotive Q&A pairs
 │   ├── requirements.txt        # Python dependencies
-│   ├── run.py                  # Server startup script
-│   └── migrate_db.py           # Database migration script
+│   ├── .env                   # Environment variables
+│   └── run.py                 # Server startup script
 │
-└── tests/                      # Test suite
-    ├── test_api.py             # API endpoint tests
-    ├── test_ai_logic.py        # AI service tests
-    ├── test_integration.py     # Integration tests
-    ├── test_end_chat.py        # End chat functionality tests
-    ├── test_button_choices.py  # Button interaction tests
-    ├── run_all.py              # Test runner
-    └── README.md               # Test documentation
+└── tests/                     # Test suite
+    ├── test_api.py            # API endpoint tests
+    ├── test_ai_logic.py       # AI service tests
+    ├── test_integration.py    # Integration tests
+    └── run_all.py             # Test runner
 ```
 
 ### Database Schema
 
-#### Tables
+**Core Tables:**
+- `chat_sessions` - Email-based session management with guidance state tracking
+- `chat_messages` - Message history with knowledge base source tracking  
+- `tickets` - Support ticket creation with full conversation context
 
-**chat_sessions**
-```sql
-CREATE TABLE chat_sessions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    session_id VARCHAR NOT NULL UNIQUE,
-    user_contact VARCHAR NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    is_active BOOLEAN DEFAULT 1,
-    unclear_message_count INTEGER DEFAULT 0,
-    guidance_stage VARCHAR DEFAULT 'normal'
-);
-```
+**Key Features:**
+- Email-based session persistence
+- 3-round guidance system tracking (`unclear_message_count`, `guidance_stage`)
+- Knowledge base hit tracking (`is_from_kb`)
+- Session status management (`is_active`, read-only for ended sessions)
+- Support ticket escalation with conversation context
 
-**chat_messages**
-```sql
-CREATE TABLE chat_messages (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    session_id VARCHAR NOT NULL,
-    message TEXT NOT NULL,
-    response TEXT NOT NULL,
-    is_from_kb BOOLEAN DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (session_id) REFERENCES chat_sessions (session_id)
-);
-```
+### API Endpoints
 
-**tickets**
-```sql
-CREATE TABLE tickets (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    session_id VARCHAR NOT NULL,
-    user_question TEXT NOT NULL,
-    user_contact VARCHAR NOT NULL,
-    status VARCHAR DEFAULT 'open',
-    ai_attempted_response TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP,
-    FOREIGN KEY (session_id) REFERENCES chat_sessions (session_id)
-);
-```
+**Core Chat Functions:**
+- `POST /chat` - Send message, get AI response, auto-create tickets
+- `GET /chat/history/{session_id}` - Load conversation history with session status
+- `GET /sessions/{email}` - Get all user sessions with metadata
 
-### API Documentation
+**Ticket Management:**
+- `GET /tickets` - List all support tickets  
+- `PUT /tickets/{ticket_id}/status` - Update ticket status
 
-#### Authentication
-No authentication required for this demo system.
+**Knowledge Base:**
+- `GET /knowledge-base` - Get all Q&A pairs (70+ automotive entries)
+- `POST /config/switch-kb/{kb_name}` - Switch knowledge base
+- `GET /config/status` - System configuration and AI status
 
-#### Request/Response Format
-All API requests and responses use JSON format.
+**Features:**
+- No authentication (demo system)
+- JSON request/response format
+- Automatic Ollama service health checking
+- Session-based conversation persistence
 
-#### Error Handling
-```json
-{
-  "detail": "Error message",
-  "status_code": 400
-}
-```
+### Core Components
 
-#### Rate Limiting
-No rate limiting implemented in current version.
+**AI Service (`ai_service.py`):**
+- 3-round guidance system with escalation logic
+- DeepSeek-R1:1.5b integration with fallback responses
+- Context-aware conversation memory
+- Automatic ticket creation for unresolved issues
 
-### Adding New Features
+**Knowledge Base (`knowledge_base_service.py`):**
+- TF-IDF vectorization + cosine similarity matching
+- Plain text Q&A format support
+- Hot-swappable knowledge bases
+- Configurable similarity threshold
 
-#### Adding New API Endpoint
-1. Define Pydantic schema in `server/app/schemas.py`
-2. Add route handler in `server/app/main.py`
-3. Add database operations if needed
-4. Create frontend service function in `frontend/src/services/api.ts`
-5. Add tests in appropriate test file
+**Session Management:**
+- Email-based persistent sessions
+- Read-only mode for ended sessions
+- Visual status indicators (active, ended, has ticket)
+- Full conversation history with metadata
 
-#### Adding New React Component
-1. Create component in `frontend/src/components/`
-2. Add TypeScript types in `frontend/src/types/index.ts`
-3. Import and use in parent component
-4. Add styling as needed
-
-#### Modifying AI Behavior
-1. Update prompts in `server/config/ai_prompts.yaml`
-2. Modify logic in `server/app/ai_service.py`
-3. Test with `tests/test_ai_logic.py`
-
-#### Adding New Knowledge Base
-1. Create new file in `server/config/knowledge_bases/`
-2. Use format: `Question|Answer` per line
-3. Switch via API: `POST /config/switch-kb/{kb_name}`
-
-### Testing
-
-#### Test Categories
-
-**Unit Tests:**
-- Individual function testing
-- Mock external dependencies
-- Fast execution
-
-**Integration Tests:**
-- Component interaction testing
-- Database operations
-- API endpoint testing
-
-**End-to-End Tests:**
-- Complete user workflows
-- Browser automation (if needed)
-- Full system testing
-
-#### Running Tests
-
-**All Tests:**
-```bash
-python tests/run_all.py
-```
-
-**Specific Test Categories:**
-```bash
-# API tests
-python tests/test_api.py
-
-# AI logic tests
-python tests/test_ai_logic.py
-
-# Integration tests
-python tests/test_integration.py
-
-# Feature-specific tests
-python tests/test_end_chat.py
-python tests/test_button_choices.py
-```
-
-**With Coverage:**
-```bash
-pip install pytest-cov
-pytest tests/ --cov=server/app --cov-report=html
-```
-
-### Deployment
-
-#### Production Considerations
-
-**Backend:**
-- Use production ASGI server (Gunicorn + Uvicorn)
-- Configure proper database (PostgreSQL)
-- Set up environment variables
-- Configure logging
-- Set up monitoring
-
-**Frontend:**
-- Build production bundle: `npm run build`
-- Serve with nginx or similar
-- Configure proper base URL
-- Set up CDN for static assets
-
-**AI Service:**
-- Consider GPU acceleration for better performance
-- Set up model caching
-- Configure resource limits
-
-#### Environment Variables
-```bash
-# Backend
-DATABASE_URL=postgresql://user:pass@localhost/dbname
-OLLAMA_BASE_URL=http://localhost:11434
-AI_MODEL=deepseek-r1:1.5b
-
-# Frontend
-REACT_APP_API_URL=http://localhost:8000
-```
+**Frontend Features:**
+- Real-time chat interface with typing indicators
+- Session history browser with search
+- Choice buttons for guided interactions
+- Responsive design with mobile optimization
 
 ## Troubleshooting
 
-### Common Issues
+### Quick Fixes
 
-#### Ollama Issues
+**AI not responding:**
 ```bash
-# Check if Ollama is running
-pgrep -f "ollama serve"
+# Check Ollama status
+curl -s http://localhost:11434/api/tags
 
-# Check available models
-ollama list
-
-# Check Ollama logs
-journalctl -u ollama
-
-# Restart Ollama
-pkill ollama && ollama serve
+# Restart Ollama (auto-handled by start.sh)
+./start.sh
 ```
 
-#### Backend Issues
+**Service startup issues:**
 ```bash
-# Check Python version
-python3 --version
+# Check ports
+lsof -i :3000,8000,11434
 
-# Check if virtual environment is activated
-which python
+# Restart everything
+./start.sh
+```
 
-# Check installed packages
-pip list
-
-# Check database file permissions
+**Database issues:**
+```bash
+# Check database file
 ls -la faq_system.db
 
-# View backend logs
-tail -f server/logs/app.log
+# View recent sessions
+sqlite3 faq_system.db "SELECT * FROM chat_sessions ORDER BY created_at DESC LIMIT 5;"
 ```
 
-#### Frontend Issues
+**Frontend build issues:**
 ```bash
-# Check Node.js version
-node --version
-
-# Clear npm cache
-npm cache clean --force
-
-# Reinstall dependencies
+cd frontend
 rm -rf node_modules package-lock.json
 npm install
-
-# Check for port conflicts
-lsof -i :3000
+npm start
 ```
 
-#### Database Issues
-```bash
-# Recreate database
-rm faq_system.db
-python server/app/database.py
+### System Status Checks
 
-# Check database schema
-sqlite3 faq_system.db ".schema"
+**Backend health:** `GET http://localhost:8000/config/status`
+**Knowledge base:** `GET http://localhost:8000/knowledge-base` 
+**AI service:** `GET http://localhost:8000/config/ai-status`
 
-# View table contents
-sqlite3 faq_system.db "SELECT * FROM chat_sessions LIMIT 5;"
-```
+### Development Tips
 
-### Performance Optimization
-
-#### Backend Optimization
-- Use database connection pooling
-- Implement caching for knowledge base queries
-- Optimize AI model loading
-- Add request compression
-
-#### Frontend Optimization
-- Implement lazy loading for components
-- Use React.memo for expensive components
-- Optimize bundle size
-- Add service worker for caching
-
-#### AI Service Optimization
-- Use GPU acceleration if available
-- Implement model quantization
-- Add response caching
-- Optimize prompt length
-
-### Security Considerations
-
-#### Input Validation
-- Sanitize all user inputs
-- Validate email formats
-- Limit message length
-- Prevent SQL injection
-
-#### API Security
-- Add rate limiting
-- Implement authentication
-- Use HTTPS in production
-- Validate request origins
-
-#### Data Privacy
-- Encrypt sensitive data
-- Implement data retention policies
-- Add user data deletion capabilities
-- Follow GDPR compliance
-
-### Monitoring and Logging
-
-#### Application Monitoring
-- Add health check endpoints
-- Monitor response times
-- Track error rates
-- Monitor resource usage
-
-#### Logging Configuration
-```python
-import logging
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('app.log'),
-        logging.StreamHandler()
-    ]
-)
-```
-
-#### Metrics Collection
-- Request/response metrics
-- AI model performance
-- Database query performance
-- User interaction patterns
+- Use `python tests/run_all.py` to run all tests
+- Check logs in browser console for frontend issues  
+- Backend runs in debug mode by default
+- Knowledge base changes require `POST /config/reload`
+- Sessions persist across restarts via SQLite database

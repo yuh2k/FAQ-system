@@ -41,6 +41,12 @@ if ! command_exists npm; then
     exit 1
 fi
 
+if command_exists ollama; then
+    echo -e "${GREEN}✅ Ollama is installed${NC}"
+else
+    echo -e "${YELLOW}⚠️  Ollama is not installed (AI will use fallback responses)${NC}"
+fi
+
 echo -e "${GREEN}✅ All prerequisites met${NC}"
 
 # Check if ports are available
@@ -103,6 +109,47 @@ fi
 
 echo -e "${GREEN}✅ Frontend setup complete${NC}"
 
+# Check and start Ollama service for AI
+echo -e "${BLUE}Checking AI service (Ollama)...${NC}"
+if command_exists ollama; then
+    # Check if Ollama is already running
+    if curl -s http://localhost:11434/api/tags > /dev/null 2>&1; then
+        echo -e "${GREEN}✅ Ollama is already running${NC}"
+    else
+        echo -e "${YELLOW}🤖 Starting Ollama service for AI...${NC}"
+        ollama serve > /dev/null 2>&1 &
+        OLLAMA_PID=$!
+        
+        # Wait for Ollama to start
+        echo -e "${YELLOW}⏳ Waiting for Ollama to start...${NC}"
+        for i in {1..30}; do
+            if curl -s http://localhost:11434/api/tags > /dev/null 2>&1; then
+                echo -e "${GREEN}✅ Ollama service started successfully${NC}"
+                break
+            fi
+            sleep 1
+        done
+        
+        # Check if Ollama started successfully
+        if ! curl -s http://localhost:11434/api/tags > /dev/null 2>&1; then
+            echo -e "${RED}❌ Failed to start Ollama service${NC}"
+            echo -e "${YELLOW}⚠️  The system will use fallback AI responses${NC}"
+        fi
+    fi
+    
+    # Check if required model is available
+    if curl -s http://localhost:11434/api/tags 2>/dev/null | grep -q "deepseek-r1:1.5b"; then
+        echo -e "${GREEN}✅ AI model (deepseek-r1:1.5b) is available${NC}"
+    else
+        echo -e "${YELLOW}⚠️  AI model (deepseek-r1:1.5b) not found${NC}"
+        echo -e "${YELLOW}💡 To install it, run: ollama pull deepseek-r1:1.5b${NC}"
+        echo -e "${YELLOW}⚠️  The system will use fallback AI responses${NC}"
+    fi
+else
+    echo -e "${YELLOW}⚠️  Ollama is not installed. AI will use fallback responses${NC}"
+    echo -e "${YELLOW}💡 To install Ollama, visit: https://ollama.ai${NC}"
+fi
+
 # Start services
 echo -e "${BLUE}Starting services...${NC}"
 echo "=========================="
@@ -157,6 +204,11 @@ cleanup() {
     echo -e "${YELLOW}🛑 Shutting down services...${NC}"
     kill $BACKEND_PID 2>/dev/null
     kill $FRONTEND_PID 2>/dev/null
+    # Only kill Ollama if we started it
+    if [ ! -z "$OLLAMA_PID" ]; then
+        echo -e "${YELLOW}🤖 Stopping Ollama service...${NC}"
+        kill $OLLAMA_PID 2>/dev/null
+    fi
     echo -e "${GREEN}✅ All services stopped${NC}"
     exit 0
 }

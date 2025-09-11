@@ -6,13 +6,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from dotenv import load_dotenv
 
+# Load environment variables first
+load_dotenv()
+
 from database import get_db, init_db
 from models import ChatSession, ChatMessage, Ticket
 from schemas import ChatRequest, ChatResponse, TicketResponse
 from knowledge_base_service import KnowledgeBaseService
 from ai_service import AIService
-
-load_dotenv()
 
 app = FastAPI(title="Customer FAQ System", version="1.0.0")
 
@@ -173,27 +174,54 @@ async def update_ticket_status(
 
 @app.get("/chat/history/{session_id}")
 async def get_chat_history(session_id: str, db: AsyncSession = Depends(get_db)):
-    """Get chat history"""
-    result = await db.execute(
+    """Get chat history with session status"""
+    # Get session info
+    session_result = await db.execute(
+        select(ChatSession)
+        .where(ChatSession.session_id == session_id)
+    )
+    session = session_result.scalar()
+    
+    # Get messages
+    messages_result = await db.execute(
         select(ChatMessage)
         .where(ChatMessage.session_id == session_id)
         .order_by(ChatMessage.created_at)
     )
-    messages = result.scalars().all()
+    messages = messages_result.scalars().all()
     
-    return [
-        {
-            "message": msg.message,
-            "response": msg.response,
-            "is_from_kb": msg.is_from_kb,
-            "created_at": msg.created_at
-        }
-        for msg in messages
-    ]
+    # Check if there's a ticket
+    ticket_result = await db.execute(
+        select(Ticket)
+        .where(Ticket.session_id == session_id)
+        .limit(1)
+    )
+    has_ticket = ticket_result.scalar() is not None
+    
+    return {
+        "session_info": {
+            "session_id": session_id,
+            "is_active": session.is_active if session else True,
+            "has_ticket": has_ticket,
+            "guidance_stage": session.guidance_stage if session else "normal"
+        },
+        "messages": [
+            {
+                "message": msg.message,
+                "response": msg.response,
+                "is_from_kb": msg.is_from_kb,
+                "created_at": msg.created_at
+            }
+            for msg in messages
+        ]
+    }
 
 @app.get("/sessions/{email}")
 async def get_user_sessions(email: str, db: AsyncSession = Depends(get_db)):
     """Get all sessions for a user by email"""
+    from sqlalchemy import func
+    
+    # Get sessions
     result = await db.execute(
         select(ChatSession)
         .where(ChatSession.user_contact == email)
@@ -201,16 +229,65 @@ async def get_user_sessions(email: str, db: AsyncSession = Depends(get_db)):
     )
     sessions = result.scalars().all()
     
-    return [
-        {
+    # Get message counts and last messages for each session
+    session_data = []
+    for session in sessions:
+        # Count messages for this session
+        count_result = await db.execute(
+            select(func.count(ChatMessage.id))
+            .where(ChatMessage.session_id == session.session_id)
+        )
+        message_count = count_result.scalar() or 0
+        
+        # Get last message for this session
+        last_msg_result = await db.execute(
+            select(ChatMessage.message)
+            .where(ChatMessage.session_id == session.session_id)
+            .order_by(ChatMessage.created_at.desc())
+            .limit(1)
+        )
+        last_message = last_msg_result.scalar()
+        
+        # Check if there's a ticket for this session
+        ticket_result = await db.execute(
+            select(Ticket)
+            .where(Ticket.session_id == session.session_id)
+            .limit(1)
+        )
+        has_ticket = ticket_result.scalar() is not None
+        
+        session_data.append({
             "session_id": session.session_id,
             "created_at": session.created_at,
             "updated_at": session.created_at,  # ChatSession doesn't have updated_at field
-            "message_count": len(session.messages) if session.messages else 0,
-            "last_message": session.messages[-1].message if session.messages else None
-        }
-        for session in sessions
-    ]
+            "message_count": message_count,
+            "last_message": last_message,
+            "is_active": session.is_active,
+            "has_ticket": has_ticket,
+            "guidance_stage": session.guidance_stage
+        })
+    
+    return session_data
+
+@app.get("/debug/db-info")
+async def debug_db_info():
+    """Debug: Show database connection info"""
+    import os
+    from database import DATABASE_URL
+    return {
+        "DATABASE_URL": DATABASE_URL,
+        "env_file": os.path.exists("/Users/bytedance/Library/Mobile Documents/com~apple~CloudDocs/csfaq/FAQ-system/server/.env"),
+        "cwd": os.getcwd()
+    }
+
+@app.get("/debug/raw-sessions/{email}")
+async def debug_raw_sessions(email: str, db: AsyncSession = Depends(get_db)):
+    """Debug: Execute raw SQL query"""
+    from sqlalchemy import text
+    result = await db.execute(text("SELECT user_contact, session_id FROM chat_sessions WHERE user_contact = :email"), {"email": email})
+    rows = result.fetchall()
+    print(f"DEBUG RAW: Found {len(rows)} rows for {email}")
+    return [{"user_contact": row[0], "session_id": row[1]} for row in rows]
 
 @app.get("/knowledge-base")
 async def get_knowledge_base():
