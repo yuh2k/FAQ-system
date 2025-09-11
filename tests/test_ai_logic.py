@@ -61,8 +61,9 @@ class AILogicTests:
                 self.log("Human request doesn't create ticket", "FAIL")
             
             # Test 4: 3-round guidance
+            session_state_test = {'unclear_message_count': 2, 'guidance_stage': 'normal'}
             response3, ticket3, unclear3 = await ai.generate_response(
-                "something", None, False, {'unclear_message_count': 2, 'guidance_stage': 'normal'}
+                "something", None, False, session_state_test
             )
             if "CHOICE_BUTTONS_START" in response3:
                 self.log("3rd round shows choice buttons")

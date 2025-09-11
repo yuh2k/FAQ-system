@@ -134,12 +134,15 @@ class LocalAIService:
         
         # PRIORITY CHECK: AI-powered human help intent detection
         human_help_needed = await self._detect_human_help_intent(user_message)
+        
+        
         if human_help_needed:
             direct_help_response = self._get_direct_help_response()
             return direct_help_response, True, False  # Force immediate ticket creation
         
         # Check if this is an unclear intent message
         is_unclear_intent = self._is_unclear_intent(user_message, kb_found)
+        
         
         # Handle user choice after 3 unclear messages
         if session_state['guidance_stage'] == 'waiting_for_choice':
@@ -298,6 +301,7 @@ If the message seems like a simple greeting (hello, hi, etc.), respond with a fr
     def _is_unclear_intent(self, user_message: str, kb_found: bool) -> bool:
         """Check if user message has unclear intent"""
         
+        
         # If KB found an answer, intent is clear
         if kb_found:
             return False
@@ -306,7 +310,10 @@ If the message seems like a simple greeting (hello, hi, etc.), respond with a fr
         
         # Check for greeting patterns - these are not unclear
         greetings = ['hello', 'hi', 'hey', 'good morning', 'good afternoon', 'greetings']
-        if any(greeting in user_lower for greeting in greetings):
+        # Use word boundary check to avoid false matches like "hi" in "something"
+        import re
+        greeting_pattern = r'\b(' + '|'.join(re.escape(greeting) for greeting in greetings) + r')\b'
+        if re.search(greeting_pattern, user_lower):
             return False
         
         # Check for clear complaint/problem patterns - these need tickets but are not unclear
@@ -328,6 +335,7 @@ If the message seems like a simple greeting (hello, hi, etc.), respond with a fr
             # Very general questions without context
             user_lower in ['what?', 'how?', 'why?', 'help', 'info', 'question', 'anything', 'something']
         ]
+        
         
         return any(unclear_patterns)
 
@@ -425,6 +433,7 @@ Answer: YES or NO only"""
         explicit_human_phrases = [
             'human help', 'customer service', 'customer support', 
             'talk to human', 'speak to human', 'speak with human',
+            'want to speak to a human', 'i want to speak to a human',
             'real person', 'live person', 'actual person',
             'speak to agent', 'talk to agent', 'customer agent', 'support agent',
             'transfer me', 'escalate this', 'escalate my', 'speak to manager', 
