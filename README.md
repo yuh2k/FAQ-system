@@ -129,9 +129,6 @@ After 3 unclear messages, users get clickable options:
 
 # Run tests
 python tests/run_all.py
-
-# View logs
-tail -f server/logs/*.log
 ```
 
 ## API Access
